@@ -180,6 +180,8 @@ class GlobalVariable:
 
     JMP_SCRIPT_HEAD = ["GROUP", "DA_GROUP", "PART_ID", "X_COORD", "Y_COORD", "HARD_BIN", "SOFT_BIN"]
 
+    DIE_ID_ADD = 1000000
+
     TEST_ID_COLUMN = 0
     TEST_TYPE_COLUMN = 1
     TEST_NUM_COLUMN = 2

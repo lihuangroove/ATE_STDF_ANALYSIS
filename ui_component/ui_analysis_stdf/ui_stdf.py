@@ -97,6 +97,14 @@ class StdfLoadUi(QMainWindow, Ui_MainWindow):
         self.dock_console_load.addWidget(self.console)
         self.area.addDock(self.dock_console_load, "bottom")
         # self.area.moveDock(self.dock_stdf_load, 'above', dock_console_load)
+
+        # " 用来存放chart的 "
+        # self.chart_ui = ChartDockWindow(self.li, None, icon=None, space_nm=space_nm)  # type:ChartDockWindow
+        # self.dock_chart = Dock("Chart Dock", size=(400, 100))
+        # self.dock_chart.addWidget(self.chart_ui)
+        # self.area.addDock(self.dock_chart, "bottom")
+        "------------------------------------------------------------------------------"
+
         "------------------------------------------------------------------------------"
         self.area.restoreState(
             {

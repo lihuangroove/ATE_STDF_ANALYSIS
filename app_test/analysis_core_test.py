@@ -14,10 +14,10 @@ import pandas as pd
 
 from app_test.test_utils.mixins import Hdf5DataLoad
 from app_test.test_utils.wrapper_utils import Tester
+from app_test.test_utils.log_utils import Print
 from common.app_variable import TestVariable
 from common.cal_interface.capability import CapabilityUtils
 from parser_core.stdf_parser_func import DtpOptFlag, PrrPartFlag
-from test_utils.log_utils import Print
 
 
 class ReadHdf5BaseAnalysisCase(unittest.TestCase, Hdf5DataLoad):

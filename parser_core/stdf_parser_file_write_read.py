@@ -16,7 +16,7 @@ from pandas import DataFrame as Df
 
 from app_test.test_utils.wrapper_utils import Time
 from common.app_variable import TestVariable as TestVar, DataModule, GlobalVariable as GloVar, PtmdModule, TestVariable, \
-    PartFlags, FailFlag
+    PartFlags, FailFlag, GlobalVariable
 from parser_core.stdf_parser_func import PrrPartFlag, DtpTestFlag
 
 
@@ -165,13 +165,13 @@ class ParserData:
         dtp_df.insert(0, column="ID", value=unit_id)
         ptmd_df.insert(0, column="ID", value=unit_id)
 
-        prr_df["DIE_ID"] = prr_df["PART_ID"] + unit_id * 1000000
+        prr_df["DIE_ID"] = prr_df["PART_ID"] + unit_id * GlobalVariable.DIE_ID_ADD
         prr_df["SITE_NUM"] = prr_df["SITE_NUM"].apply(lambda x: 'S{:0>3d}'.format(x))
         # TODO: TEXT看情况是否需要TEST_NUM
         ptmd_df["TEXT"] = ptmd_df["TEST_NUM"].astype(str) + ":" + ptmd_df["TEST_TXT"]
         prr_df = ParserData.get_prr_data(prr_df, part_flag, read_fail)
 
-        dtp_df["DIE_ID"] = dtp_df["PART_ID"] + unit_id * 1000000
+        dtp_df["DIE_ID"] = dtp_df["PART_ID"] + unit_id * GlobalVariable.DIE_ID_ADD
         dtp_df = dtp_df[dtp_df.PART_ID.isin(prr_df.PART_ID)]
         temp_fail_exec = dtp_df.TEST_FLG & DtpTestFlag.TestFailed == DtpTestFlag.TestFailed
         temp_fail = dtp_df[temp_fail_exec].copy()
@@ -254,7 +254,7 @@ class ParserData:
         dtp_df = pd.concat(dtp_df_list)
         ptmd_df = pd.concat(ptmd_df_list)
 
-        new_test_id = 100000
+        new_test_id = 0
         ptmd_dict = {}  # 需要生成一份新的PTMD数据, 不绑定ID了
         new_dtps = []
         dtp_dict = dict()
