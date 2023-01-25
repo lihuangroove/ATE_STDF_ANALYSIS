@@ -159,7 +159,10 @@ class CapabilityUtils:
         # data_df["RESULT"] = _mad(data_df["RESULT"])
         fail_exec = data_df.FAIL_FLG == FailFlag.FAIL
         reject_qty = len(data_df[fail_exec])
-        pass_df = data_df[~fail_exec]
+        if len(data_df) == reject_qty:
+            pass_df = data_df  # TODO: 全部失效了
+        else:
+            pass_df = data_df[~fail_exec]
         data_mean, data_min, data_max, data_std, data_median = \
             pass_df.RESULT.mean(), pass_df.RESULT.min(), pass_df.RESULT.max(), pass_df.RESULT.std(), \
             pass_df.RESULT.median()

@@ -74,7 +74,9 @@ class JmpFit:
             {{Min( {min_jmp} ), Max( {max_jmp} ), Inc( {inc} ), Minor Ticks( 1 ),
             Add Ref Line( {{{l_limit}, {h_limit}}}, "Solid", "Dark Blue", "", 1, 0.25 )}}
         )
-        """.format(min_jmp=min_jmp, max_jmp=max_jmp, inc=step_nm, l_limit=l_limit, h_limit=h_limit)
+        """.format(min_jmp=min_jmp, max_jmp=max_jmp, inc=step_nm,
+                   l_limit=format(l_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+                   h_limit=format(h_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)))
 
     @staticmethod
     def fill_color_dis() -> str:

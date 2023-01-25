@@ -175,12 +175,12 @@ class JmpPlot:
                     }}
             )
         """.format(test_text=cpk_info["TEXT"], decimal=decimal,
-                   mIn=round(l_limit - displace, decimal),
-                   mAx=round(h_limit + displace, decimal),
-                   l_limit=round(l_limit, decimal),
-                   h_limit=round(h_limit, decimal),
-                   avg=round(avg, decimal),
-                   iNc=round(inc, decimal))
+                   mIn=format(l_limit - displace, '.{}f'.format(decimal)),
+                   mAx=format(h_limit + displace, '.{}f'.format(decimal)),
+                   l_limit=format(l_limit, '.{}f'.format(decimal)),
+                   h_limit=format(h_limit, '.{}f'.format(decimal)),
+                   avg=format(avg, '.{}f'.format(decimal)),
+                   iNc=format(inc, '.{}f'.format(decimal)))
 
     @staticmethod
     def trans_visual_points(arg: dict, group: bool, send_to_report: str, percent: float) -> str:
@@ -260,8 +260,8 @@ class JmpPlot:
                 }}
             )
             """.format(test_text=arg["TEXT"],
-                       y_max=round(y_max, UiGlobalVariable.JmpPlotFloatRound),
-                       y_min=round(y_min, UiGlobalVariable.JmpPlotFloatRound),
+                       y_max=format(y_max, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+                       y_min=format(y_min, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
                        mark_pro="")
 
     @staticmethod

@@ -128,7 +128,7 @@ class BasePlot:
                 ang = 0 if self.sig else 90
                 inf = InfiniteLine(
                     movable=False, angle=ang, pen=(255, 0, 0), hoverPen=(0, 200, 0),
-                    label=key + '={value:0.9f}' + self.unit,
+                    label=key + '={value:0.' + str(UiGlobalVariable.GraphPlotFloatRound) + 'f}' + self.unit,
                     labelOpts={'color': (255, 0, 0), 'movable': True, 'fill': (0, 0, 200, 100), 'position': 0.1, }
                 )
                 inf.setPos(item)

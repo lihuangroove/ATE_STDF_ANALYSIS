@@ -62,6 +62,7 @@ class Ui_Form(object):
 
         self.pushButton = QPushButton(self.groupBox_2)
         self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setEnabled(False)
 
         self.verticalLayout_2.addWidget(self.pushButton)
 

@@ -6,13 +6,16 @@
 @File    : ui_table_load_widget.py
 @Remark  : 
 """
-from PySide2.QtCore import Slot, Qt, QTimer
+from typing import Union
+
+from PySide2.QtCore import Slot, Qt, QTimer, QThread, Signal
 from PySide2.QtGui import QColor, QFont
 from PySide2.QtWidgets import QWidget, QAbstractItemView, QTableWidget, QMessageBox
 
 from common.app_variable import GlobalVariable
 from common.li import Li, SummaryCore
 from ui_component.ui_analysis_stdf.ui_designer.ui_table_load import Ui_Form as TableLoadForm
+from ui_component.ui_common.my_text_browser import Print
 from ui_component.ui_common.ui_utils import QTableUtils, QWidgetUtils
 from ui_component.ui_module.table_module import PauseTableWidget
 
@@ -23,6 +26,52 @@ pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
 
 
+class QthDropCalculation(QThread):
+    """
+    drop掉数据
+    """
+    li: Li = None
+    new_select_limit: Union[dict, None] = None
+    eventSignal = Signal(int)
+
+
+class QthCalculation(QThread):
+    """
+    新的Limit的数据, 属于比较简单的
+    """
+    li: Li = None
+    new_limit: Union[dict, None] = None
+    only_pass: bool = None
+    eventSignal = Signal(int)
+
+    def set_li(self, li: Li):
+        self.li = li
+
+    def set_new_limit(self, limit: Union[dict, None]):
+        self.new_limit = limit
+
+    def event_send(self, i: int):
+        self.eventSignal.emit(i)
+
+    def set_only_pass(self, boolean: bool):
+        self.only_pass = boolean
+
+    def run(self) -> None:
+        self.event_send(1)
+        if self.new_limit:
+            self.li.update_limit(self.new_limit)
+        if self.only_pass:
+            self.li.only_pass()
+            self.event_send(2)
+        self.event_send(3)
+        self.li.calculation_new_top_fail()
+        self.event_send(4)
+        self.li.calculation_capability()
+        self.event_send(5)
+        self.li.background_generation_data_use_to_chart_and_to_save_csv()
+        self.event_send(6)
+
+
 class TableLoadWidget(QWidget, TableLoadForm):
     """
     Table
@@ -31,6 +80,7 @@ class TableLoadWidget(QWidget, TableLoadForm):
     """
     li: Li = None
     summary: SummaryCore = None
+    th: QthCalculation = None
 
     def __init__(self, li: Li, summary: SummaryCore, parent=None):
         super(TableLoadWidget, self).__init__(parent)
@@ -50,6 +100,14 @@ class TableLoadWidget(QWidget, TableLoadForm):
         self.horizontalLayout.addWidget(self.gw)
         self.init_plot()
         self.init_table_signal()
+        self.init_thread()
+
+    def init_thread(self):
+        self.progressBar.setMaximum(6)
+        self.th = QthCalculation(self)
+        self.th.eventSignal.connect(lambda x: self.progressBar.setValue(x))
+        self.th.set_li(self.li)
+        self.th.finished.connect(self.li.update)
 
     def init_plot(self):
         self.gw.setMaximumWidth(20)
@@ -113,24 +171,29 @@ class TableLoadWidget(QWidget, TableLoadForm):
 
     @Slot(bool)
     def on_checkBox_clicked(self, e):
-        if e:
-            self.cpk_info_table.sortByColumn(GlobalVariable.TOP_FAIL_COLUMN, Qt.SortOrder.DescendingOrder)
-        else:
-            self.cpk_info_table.sortByColumn(GlobalVariable.TEST_ID_COLUMN, Qt.SortOrder.AscendingOrder)
+        sort = Qt.SortOrder.DescendingOrder if e else Qt.SortOrder.AscendingOrder
+        self.cpk_info_table.sortByColumn(GlobalVariable.TEST_ID_COLUMN, sort)
 
     @Slot()
     def on_pushButton_pressed(self):
         new_limit = QTableUtils.get_all_new_limit(self.cpk_info_table)
         if not new_limit:
             return
-        print(new_limit)
+        if self.th.isRunning():
+            return Print.warning("工作线程正在运行中!")
+        self.th.set_new_limit(new_limit)
         if self.message_show("注意,Limit已经更新!!!,如果只看PASS请选择否!"):
-            self.li.update_limit(new_limit, False)
+            self.th.set_only_pass(True)
         else:
-            self.li.update_limit(new_limit, True)
+            self.th.set_only_pass(False)
+        self.th.start()
 
     @Slot()
     def on_pushButton_2_pressed(self):
+        """
+        只看选中项目PASS的数据
+        :return:
+        """
         new_limit = QTableUtils.get_select_new_limit(self.cpk_info_table)
         print(new_limit)
         if not new_limit:
@@ -138,12 +201,28 @@ class TableLoadWidget(QWidget, TableLoadForm):
         print("删除选中项目Limit外的数据")
 
     @Slot()
+    def on_pushButton_5_pressed(self):
+        """
+        只看选中项目FAIL的数据
+        TODO: 有些复杂, 需要都fail
+        :return:
+        """
+
+    @Slot()
     def on_pushButton_4_pressed(self):
         test_ids = QTableUtils.get_table_widget_test_id(self.cpk_info_table)
         if not test_ids:
             return
-        print(test_ids)
         print("只对选中项目的数据进行分析")
+        if self.th.isRunning():
+            return Print.warning("工作线程正在运行中!")
+        self.li.screen_df(test_ids)
+        self.th.set_new_limit(None)
+        if self.message_show("注意,Limit已经更新!!!,如果只看PASS请选择否!"):
+            self.th.set_only_pass(True)
+        else:
+            self.th.set_only_pass(False)
+        self.th.start()
 
     def cpk_table_row_hide(self, hide: bool):
         for i in range(self.cpk_info_table.rowCount()):

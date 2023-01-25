@@ -30,19 +30,24 @@ class Ui_Form(object):
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.pushButton = QPushButton(Form)
         self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setEnabled(False)
+        self.pushButton.setEnabled(True)
 
         self.horizontalLayout_2.addWidget(self.pushButton)
 
         self.pushButton_2 = QPushButton(Form)
         self.pushButton_2.setObjectName(u"pushButton_2")
-        self.pushButton_2.setEnabled(False)
+        self.pushButton_2.setEnabled(True)
 
         self.horizontalLayout_2.addWidget(self.pushButton_2)
 
+        self.pushButton_5 = QPushButton(Form)
+        self.pushButton_5.setObjectName(u"pushButton_5")
+
+        self.horizontalLayout_2.addWidget(self.pushButton_5)
+
         self.pushButton_4 = QPushButton(Form)
         self.pushButton_4.setObjectName(u"pushButton_4")
-        self.pushButton_4.setEnabled(False)
+        self.pushButton_4.setEnabled(True)
 
         self.horizontalLayout_2.addWidget(self.pushButton_4)
 
@@ -84,9 +89,11 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u6539\u53d8Limit\u540e\u91cd\u7b97Rate", None))
-        self.pushButton_2.setText(QCoreApplication.translate("Form", u"\u5220\u9664\u9009\u4e2d\u9879\u76eeLimit\u5916\u7684\u6570\u636e", None))
-        self.pushButton_4.setText(QCoreApplication.translate("Form", u"\u53ea\u5bf9\u9009\u4e2d\u9879\u76ee\u7684\u6570\u636e\u8fdb\u884c\u5206\u6790", None))
-        self.pushButton_3.setText(QCoreApplication.translate("Form", u"\u56de\u8f66\u7b5b\u9009", None))
+        self.pushButton_2.setText(QCoreApplication.translate("Form", u"\u53ea\u770b\u9009\u4e2d\u9879\u76eePASS\u6570\u636e", None))
+        self.pushButton_5.setText(QCoreApplication.translate("Form", u"\u53ea\u770b\u9009\u4e2d\u9879\u76eeFAIL\u6570\u636e", None))
+        self.pushButton_4.setText(QCoreApplication.translate("Form", u"\u5bf9\u9009\u4e2d\u9879\u76ee\u5206\u6790", None))
+        self.pushButton_3.setText("")
+        self.lineEdit.setPlaceholderText(QCoreApplication.translate("Form", u"\u56de\u8f66\u7b5b\u9009", None))
         self.checkBox.setText(QCoreApplication.translate("Form", u"Top Fail \u663e\u793a", None))
     # retranslateUi
 

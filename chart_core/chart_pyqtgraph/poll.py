@@ -10,6 +10,7 @@
 from typing import List
 
 from PySide2.QtCore import Signal
+from PySide2.QtGui import QCloseEvent
 from PySide2.QtWidgets import QMainWindow
 from pyqtgraph.dockarea import DockArea, Dock
 
@@ -93,3 +94,12 @@ class ChartDockWindow(QMainWindow, Ui_MainWindow):
 
     def closeDock(self, dock_name):
         del self.area.docks[dock_name]
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        """
+        手动清除area中的dock
+        :param event:
+        :return:
+        """
+        self.area.clear()
+        event.accept()
