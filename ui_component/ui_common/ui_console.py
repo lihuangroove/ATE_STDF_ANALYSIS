@@ -81,6 +81,8 @@ class ConsoleWidget(QMainWindow, Ui_MainWindow):
         # TODO: 加入可以从文件读取的方法
         self.field_code_input.setPlainText("""
 '''
+# TODO: 待加入可以从文件读取的方法
+# TODO: 待更新, 可以在这里写一些语法来操作li
 '''
         """)
         self.syntax_highlight = PythonHighlighter(self.field_code_input.document())
@@ -103,5 +105,5 @@ class ConsoleWidget(QMainWindow, Ui_MainWindow):
 
     @Slot()
     def on_action_refresh_triggered(self):
-        cmd = 'li.update()'
+        cmd = 'li.update();li.refresh_chart()'
         self.console_win.runCmd(cmd)

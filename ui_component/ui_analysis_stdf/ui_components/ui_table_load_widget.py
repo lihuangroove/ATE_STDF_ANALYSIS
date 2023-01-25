@@ -172,7 +172,8 @@ class TableLoadWidget(QWidget, TableLoadForm):
     @Slot(bool)
     def on_checkBox_clicked(self, e):
         sort = Qt.SortOrder.DescendingOrder if e else Qt.SortOrder.AscendingOrder
-        self.cpk_info_table.sortByColumn(GlobalVariable.TEST_ID_COLUMN, sort)
+        column = GlobalVariable.TOP_FAIL_COLUMN if e else GlobalVariable.TEST_ID_COLUMN
+        self.cpk_info_table.sortByColumn(column, sort)
 
     @Slot()
     def on_pushButton_pressed(self):

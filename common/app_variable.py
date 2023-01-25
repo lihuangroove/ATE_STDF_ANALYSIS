@@ -50,7 +50,7 @@ class Calculation:
     暂未用到
     """
     TEST_ID: int
-    TEST_TYPE: str
+    DATAT_TYPE: str
     TEST_NUM: int
     TEST_TXT: str
     UNITS: str

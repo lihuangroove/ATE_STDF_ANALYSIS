@@ -179,7 +179,7 @@ class ProcessWidget(QWidget, Ui_Form):
                             , UiGlobalVariable.GraphPlotFloatRound)
                     temp_dict = {
                         "TEST_ID": item["TEST_ID"],
-                        "TEST_TYPE": item["TEST_TYPE"],
+                        "DATAT_TYPE": item["DATAT_TYPE"],
                         "TEXT": item_key,
                         "UNITS": item["UNITS"],
                         "LO_LIMIT": item["LO_LIMIT"],
@@ -203,7 +203,7 @@ class ProcessWidget(QWidget, Ui_Form):
                     for i, row in enumerate(temp_each_data):
                         d = {
                             "TEST_ID": row["TEST_ID"],
-                            "TEST_TYPE": row["TEST_TYPE"],
+                            "DATAT_TYPE": row["DATAT_TYPE"],
                             "TEXT": row["TEXT"],
                             "UNITS": row["UNITS"],
                             "LO_LIMIT": row["LO_LIMIT"],
@@ -254,7 +254,7 @@ class ProcessWidget(QWidget, Ui_Form):
                     , 6)
                 temp_dict = {
                     "TEST_ID": item["TEST_ID"],
-                    "TEST_TYPE": item["TEST_TYPE"],
+                    "DATAT_TYPE": item["DATAT_TYPE"],
                     "TEST_NUM": item["TEST_NUM"],
                     "TEST_TXT": item["TEST_TXT"],
                     "UNITS": item["UNITS"],
@@ -288,7 +288,7 @@ class ProcessWidget(QWidget, Ui_Form):
             diff_data_list = []
             df_group = self.jmp_df.groupby(["GROUP", "DA_GROUP"])
             for item_key, test_item in self.calculation.items():  # type:str, dict
-                if test_item["TEST_TYPE"] == DatatType.FTR:
+                if test_item["DATAT_TYPE"] == DatatType.FTR:
                     continue
                 temp_dict = dict()
                 diff_data_list.append(temp_dict)

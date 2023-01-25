@@ -65,10 +65,6 @@ class SummaryCore:
     summary_df: pd.DataFrame = None
 
     def set_data(self, summary: Union[list, pd.DataFrame]):
-        """
-        后台必然默认传送一个元组, 拆包为三份数据,并且传来的summary_df已经经过排序
-        而且这个返回的数据是比较重要的!!!@后期是需要用在服务器缓存中的
-        """
         if not summary:
             return
         if isinstance(summary, list):
@@ -155,8 +151,8 @@ class SummaryCore:
             ID = getattr(select, "ID")
             data_module = ParserData.load_hdf5_analysis(
                 getattr(select, "HDF5_PATH"),
-                int(getattr(select, "PART_FLAG")),
-                int(getattr(select, "READ_FAIL")),
+                getattr(select, "PART_FLAG"),
+                getattr(select, "READ_FAIL"),
                 unit_id=ID,
             )
             id_module_dict[ID] = data_module
@@ -187,7 +183,6 @@ class Li(QObject):
 
     QChartSelect = Signal()  # 用于刷新选取的数据
     QChartRefresh = Signal()  # 用于重新刷新所有的图
-    QProcessRefresh = Signal()  # 用于刷新制程能力
 
     # 用于更新Limit后的数据运算
     # ======================== Temp
@@ -202,6 +197,20 @@ class Li(QObject):
 
     def __init__(self):
         super(Li, self).__init__()
+
+    @property
+    def dt(self):
+        return self.to_chart_csv_data.df
+
+    @dt.setter
+    def dt(self, new_df: pd.DataFrame):
+        if not isinstance(new_df, pd.DataFrame):
+            print(f"Error, 必须要赋值和dt一样的数据！···, 错误类型{type(new_df)}")
+            return
+        self.to_chart_csv_data.dt = new_df
+
+    def __getitem__(self, item):
+        return
 
     def set_data(self,
                  select_summary: pd.DataFrame,
@@ -517,6 +526,4 @@ class Li(QObject):
         :return:
         """
         print("refresh_chart QChartRefresh @emit")
-        print("refresh_chart with QProcessRefresh @emit")
         self.QChartRefresh.emit()
-        self.QProcessRefresh.emit()
