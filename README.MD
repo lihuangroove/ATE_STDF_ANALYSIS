@@ -6,6 +6,8 @@
 
 ![image-20230101113828274](README.assets/image-20230101113828274.png)
 
+## 国内网络上不了GitHub, 随缘更新.
+
 ## BASE
 
 * PySide2
