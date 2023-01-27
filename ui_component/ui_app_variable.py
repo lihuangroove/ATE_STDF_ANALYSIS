@@ -154,6 +154,10 @@ class UiGlobalVariable:
         ALL_CHART_ACTIONS[-1]
     ]
 
+    R_CHARTS = [
+
+    ]
+
     WEB_ACTIONS = [
         ACTIONS_NAME("action_web_search", "服务器解析数据分析"),
         ACTIONS_NAME("action_material_report", "量产测试数据报表"),
