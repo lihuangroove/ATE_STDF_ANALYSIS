@@ -37,7 +37,8 @@
        <item>
         <widget class="QRadioButton" name="radioButton">
          <property name="text">
-          <string>Diff差异报告(选取5%-95%数据区间)</string>
+          <string>Diff差异报告(5%-95%数据区间)
+只比较均值</string>
          </property>
         </widget>
        </item>

@@ -95,7 +95,8 @@ class Ui_Form(object):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Processing Report", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Form", u"\u5236\u7a0b\u80fd\u529b\u62a5\u544a", None))
         self.label.setText(QCoreApplication.translate("Form", u"DATA\u7c7b\u578b", None))
-        self.radioButton.setText(QCoreApplication.translate("Form", u"Diff\u5dee\u5f02\u62a5\u544a(\u9009\u53d65%-95%\u6570\u636e\u533a\u95f4)", None))
+        self.radioButton.setText(QCoreApplication.translate("Form", u"Diff\u5dee\u5f02\u62a5\u544a(5%-95%\u6570\u636e\u533a\u95f4)\n"
+"\u53ea\u6bd4\u8f83\u5747\u503c", None))
         self.radioButton_2.setText(QCoreApplication.translate("Form", u"Value\u503c\u62a5\u544a(\u4ec5\u8ba1\u7b97PASSDIE)", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5bfc\u51fa\u4e3aExcel", None))
         self.groupBox.setTitle(QCoreApplication.translate("Form", u"\u5236\u7a0b\u80fd\u529bTable", None))
