@@ -50,7 +50,7 @@ class Calculation:
     暂未用到
     """
     TEST_ID: int
-    TEST_TYPE: str
+    DATAT_TYPE: str
     TEST_NUM: int
     TEST_TXT: str
     UNITS: str
@@ -82,9 +82,9 @@ class DataLiBackup:
 @dataclass
 class ToChartCsv:
     # TODO: Must
-    df: pd.DataFrame = None
+    df: pd.DataFrame = None  # 所有数据
     group_df: Dict[str, pd.DataFrame] = None
-    chart_df: pd.DataFrame = None
+    chart_df: pd.DataFrame = None  # 前台展示数据, 基于分组后的select
     group_chart_df: Dict[str, pd.DataFrame] = None
     select_group: set = None
 
@@ -178,7 +178,7 @@ class GlobalVariable:
     PTMD_TYPE = (U2, str, U4, str, U1, U1, I1, I1, I1, R4, R4, str)
     PTMD_TYPE_DICT = dict(zip(PTMD_HEAD, PTMD_TYPE))
 
-    JMP_SCRIPT_HEAD = ["GROUP", "DA_GROUP", "PART_ID", "X_COORD", "Y_COORD", "HARD_BIN", "SOFT_BIN"]
+    JMP_SCRIPT_HEAD = ["GROUP", "DA_GROUP", "PART_ID", "X_COORD", "Y_COORD", "HARD_BIN", "SOFT_BIN", "FAIL_FLAG"]
 
     DIE_ID_ADD = 1000000
 

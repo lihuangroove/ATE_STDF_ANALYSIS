@@ -131,7 +131,9 @@ class CapabilityUtils:
         return top_fail_dict
 
     @staticmethod
-    def calculation_ptr(ptmd: PtmdModule, top_fail_qty: int, data_df: pd.DataFrame) -> Union[Calculation, dict]:
+    def calculation_ptr(
+            ptmd: PtmdModule, top_fail_qty: int, data_df: pd.DataFrame, all_qty: int
+    ) -> Union[Calculation, dict]:
         """
         TODO:
             3倍中位数绝对偏差去极值
@@ -139,6 +141,7 @@ class CapabilityUtils:
         :param top_fail_qty:
         :param ptmd:
         :param data_df:
+        :param all_qty: 计算Top Fail Rate
         :return:
         """
 
@@ -159,10 +162,13 @@ class CapabilityUtils:
         # data_df["RESULT"] = _mad(data_df["RESULT"])
         fail_exec = data_df.FAIL_FLG == FailFlag.FAIL
         reject_qty = len(data_df[fail_exec])
-        pass_df = data_df[~fail_exec]
+        if len(data_df) == reject_qty:
+            pass_df = data_df  # TODO: 全部失效了
+        else:
+            pass_df = data_df[~fail_exec]
         data_mean, data_min, data_max, data_std, data_median = \
             pass_df.RESULT.mean(), pass_df.RESULT.min(), pass_df.RESULT.max(), pass_df.RESULT.std(), \
-            pass_df.RESULT.median()
+                pass_df.RESULT.median()
         if data_std == 0:
             data_std = 1E-05
         cpk = round(min([(ptmd.HI_LIMIT - data_mean) / (3 * data_std),
@@ -179,7 +185,7 @@ class CapabilityUtils:
             h_limit_type = LimitType.EqualHighLimit
         temp_dict = {
             "TEST_ID": ptmd.TEST_ID,  # 每个测试项目最后整合后只会有唯一一个TEST_ID
-            "TEST_TYPE": ptmd.DATAT_TYPE,
+            "DATAT_TYPE": ptmd.DATAT_TYPE,
             "TEST_NUM": ptmd.TEST_NUM,
             "TEST_TXT": ptmd.TEST_TXT,
             "UNITS": ptmd.UNITS,
@@ -191,7 +197,7 @@ class CapabilityUtils:
             "QTY": len(data_df),
             "FAIL_QTY": top_fail_qty,
             # TODO: 注意 top fail的Rate一定是要%总颗数,不能%测试颗数, 待更新
-            "FAIL_RATE": "{}%".format(round(top_fail_qty / len(data_df) * 100, 3)),
+            "FAIL_RATE": "{}%".format(round(top_fail_qty / all_qty * 100, 3)),
             "REJECT_QTY": reject_qty,
             "REJECT_RATE": "{}%".format(round(reject_qty / len(data_df) * 100, 3)),
             "MIN": round(data_min, 6),  # 注意, 是取得PASS区域的数据
@@ -206,18 +212,21 @@ class CapabilityUtils:
         return temp_dict
 
     @staticmethod
-    def calculation_ftr(ptmd: PtmdModule, top_fail_qty: int, data_df: pd.DataFrame) -> Union[Calculation, dict]:
+    def calculation_ftr(
+            ptmd: PtmdModule, top_fail_qty: int, data_df: pd.DataFrame, all_qty: int
+    ) -> Union[Calculation, dict]:
         """
         只计算fail rate
         :param top_fail_qty:
         :param ptmd:
         :param data_df:
+        :param all_qty:
         :return:
         """
         reject_qty = len(data_df[data_df.TEST_FLG & DtpTestFlag.TestFailed == DtpTestFlag.TestFailed])
         temp_dict = {
             "TEST_ID": ptmd.TEST_ID,  # 每个测试项目最后整合后只会有唯一一个TEST_ID
-            "TEST_TYPE": ptmd.DATAT_TYPE,
+            "DATAT_TYPE": ptmd.DATAT_TYPE,
             "TEST_NUM": ptmd.TEST_NUM,
             "TEST_TXT": ptmd.TEST_TXT,
             "UNITS": ptmd.UNITS,
@@ -229,7 +238,7 @@ class CapabilityUtils:
             "QTY": len(data_df),
             "FAIL_QTY": top_fail_qty,
             # TODO: 注意 top fail的Rate一定是要%总颗数,不能%测试颗数, 待更新
-            "FAIL_RATE": "{}%".format(round(top_fail_qty / len(data_df) * 100, 3)),
+            "FAIL_RATE": "{}%".format(round(top_fail_qty / all_qty * 100, 3)),
             "REJECT_QTY": reject_qty,
             "REJECT_RATE": "{}%".format(round(reject_qty / len(data_df) * 100, 3)),
             "MIN": -0.1,  # 注意, 是取得有效区域的数据
@@ -253,18 +262,19 @@ class CapabilityUtils:
         :param top_fail_dict:
         :return:
         """
+        all_qty = len(df_module.prr_df)
         capability_key_list = []
         for row in df_module.ptmd_df.itertuples():  # type:PtmdModule
             data_df = df_module.dtp_df.loc[row.TEST_ID].loc[:].copy()  # TODO: 10%时间开销
             if row.DATAT_TYPE in {DatatType.PTR, DatatType.MPR}:
                 cal_data = CapabilityUtils.calculation_ptr(
-                    row, top_fail_dict[row.TEST_ID], data_df
+                    row, top_fail_dict[row.TEST_ID], data_df, all_qty
                 )
                 capability_key_list.append(cal_data)
                 continue
             if row.DATAT_TYPE == DatatType.FTR:
                 cal_data = CapabilityUtils.calculation_ftr(
-                    row, top_fail_dict[row.TEST_ID], data_df
+                    row, top_fail_dict[row.TEST_ID], data_df, all_qty
                 )
                 capability_key_list.append(cal_data)
                 continue

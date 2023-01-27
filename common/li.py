@@ -15,9 +15,10 @@ import pandas as pd
 from PySide2.QtCore import QObject, Signal
 
 from app_test.test_utils.wrapper_utils import Time
-from common.app_variable import DataModule, ToChartCsv, GlobalVariable
+from common.app_variable import DataModule, ToChartCsv, GlobalVariable, PtmdModule, LimitType, FailFlag
 from common.cal_interface.capability import CapabilityUtils
 from parser_core.stdf_parser_file_write_read import ParserData
+from parser_core.stdf_parser_func import PtmdOptFlag, PtmdParmFlag
 from report_core.openxl_utils.utils import OpenXl
 
 
@@ -64,10 +65,6 @@ class SummaryCore:
     summary_df: pd.DataFrame = None
 
     def set_data(self, summary: Union[list, pd.DataFrame]):
-        """
-        后台必然默认传送一个元组, 拆包为三份数据,并且传来的summary_df已经经过排序
-        而且这个返回的数据是比较重要的!!!@后期是需要用在服务器缓存中的
-        """
         if not summary:
             return
         if isinstance(summary, list):
@@ -154,8 +151,8 @@ class SummaryCore:
             ID = getattr(select, "ID")
             data_module = ParserData.load_hdf5_analysis(
                 getattr(select, "HDF5_PATH"),
-                int(getattr(select, "PART_FLAG")),
-                int(getattr(select, "READ_FAIL")),
+                getattr(select, "PART_FLAG"),
+                getattr(select, "READ_FAIL"),
                 unit_id=ID,
             )
             id_module_dict[ID] = data_module
@@ -180,16 +177,18 @@ class Li(QObject):
     id_module_dict: Dict[int, DataModule] = None
     df_module: DataModule = None
     # ======================== signal
-    QCalculation = Signal()  # capability_key_list 改变的信号
+    QCalculation = Signal()  # 属于重新计算的模型, 运算比较耗费时间
     QMessage = Signal(str)  # 用于全局来调用一个MessageBox, 只做提示
     QStatusMessage = Signal(str)  # 用于全局来调用一个MessageBox, 只做提示
 
     QChartSelect = Signal()  # 用于刷新选取的数据
     QChartRefresh = Signal()  # 用于重新刷新所有的图
+
+    # 用于更新Limit后的数据运算
     # ======================== Temp
-    capability_key_list: list = None
+    capability_key_list: List[dict] = None  # 计算的制程能力数据
     capability_key_dict: Dict[int, dict] = None  # key: TEST_ID -> 仅仅用于Show Plot
-    top_fail_dict: dict = None
+    top_fail_dict: dict = None  # 临时的top fail数据
 
     # ======================== 用于绘图或是capability group
     to_chart_csv_data: ToChartCsv = None
@@ -198,6 +197,20 @@ class Li(QObject):
 
     def __init__(self):
         super(Li, self).__init__()
+
+    @property
+    def dt(self):
+        return self.to_chart_csv_data.df
+
+    @dt.setter
+    def dt(self, new_df: pd.DataFrame):
+        if not isinstance(new_df, pd.DataFrame):
+            print(f"Error, 必须要赋值和dt一样的数据！···, 错误类型{type(new_df)}")
+            return
+        self.to_chart_csv_data.dt = new_df
+
+    def __getitem__(self, item):
+        return
 
     def set_data(self,
                  select_summary: pd.DataFrame,
@@ -375,33 +388,73 @@ class Li(QObject):
         df["ALL_GROUP"] = df["GROUP"] + "@" + df["DA_GROUP"]
         if self.to_chart_csv_data.select_group is not None:
             df = df[df.ALL_GROUP.isin(self.to_chart_csv_data.select_group)]
-        df = df.rename(columns=name_dict)
+        df = df.rename(columns=name_dict)  # TODO: 在其他地方, 这个就按照jmp_df来命名
         return df, calculation_capability
 
     def calculation_group(self, group_params: Union[list, None], da_group_params: Union[list, None]):
         """
-        分组的制程能力报表
+        分组的制程能力报表, 并不适合在这里展示
         TODO: future
         :param group_params:
         :param da_group_params:
         :return:
         """
 
-    def update_limit(self, limit_new: Dict[int, Tuple[float, float, str, str]], only_pass: bool = False) -> bool:
+    def update_limit(self, limit_new: Dict[int, Tuple[float, float, str, str]]):
         """
-        更新Limit并重新计算良率
-        TODO: future
+        limit_new[test_id] = (limit_min, limit_max, l_type, h_type)
+        更新Limit并重新计算良率, 在 table ui 中进行
+        1. 修改 ptmd_df 中的limit数据, 并确认 prr_df
+        2. calculation_top_fail
+        3. calculation_capability
+        4. *show table
+        TODO: 注意会修改到原始表的数据, 20230124 Done
         :param limit_new:
-        :param only_pass:
         :return:
         """
+        df = self.df_module.ptmd_df
+        for index in range(len(df)):
+            row: PtmdModule = df.iloc[index]
+            row_test_id = row.TEST_ID
+            if row_test_id not in limit_new:
+                continue
+            # 修改limit
+            df.iloc[index, df.columns.get_loc('LO_LIMIT')] = limit_new[row_test_id][0]
+            df.iloc[index, df.columns.get_loc('HI_LIMIT')] = limit_new[row_test_id][1]
+            # 修改limit的类型
+            opt_flag = row.OPT_FLAG
+            parm_flag = row.PARM_FLG
+            if limit_new[row_test_id][2] == LimitType.NoLowLimit:
+                opt_flag = opt_flag | PtmdOptFlag.NoLowLimit  # opt_flag 0b1 << 6
+            if limit_new[row_test_id][2] == LimitType.EqualLowLimit:
+                opt_flag = opt_flag & ~ PtmdOptFlag.NoLowLimit
+                parm_flag = parm_flag | PtmdParmFlag.EqualLowLimit
+            if limit_new[row_test_id][2] == LimitType.ThenLowLimit:
+                opt_flag = opt_flag & ~ PtmdOptFlag.NoLowLimit
+                parm_flag = parm_flag & ~ PtmdParmFlag.EqualLowLimit
+            if limit_new[row_test_id][3] == LimitType.NoHighLimit:
+                opt_flag = opt_flag | PtmdOptFlag.NoHighLimit  # opt_flag 0b1 << 7
+            if limit_new[row_test_id][3] == LimitType.EqualHighLimit:
+                opt_flag = opt_flag & ~ PtmdOptFlag.NoHighLimit
+                parm_flag = parm_flag | PtmdParmFlag.EqualHighLimit
+            if limit_new[row_test_id][3] == LimitType.ThenHighLimit:
+                opt_flag = opt_flag & ~ PtmdOptFlag.NoHighLimit
+                parm_flag = parm_flag & ~ PtmdParmFlag.EqualHighLimit
+            df.iloc[index, df.columns.get_loc('OPT_FLAG')] = opt_flag
+            df.iloc[index, df.columns.get_loc('PARM_FLG')] = parm_flag
 
-    def calculation_new_limit(self):
+    def only_pass(self):
+        prr = self.df_module.prr_df
+        prr = prr[prr.FAIL_FLAG == FailFlag.PASS]
+        self.df_module.prr_df = prr
+
+    def calculation_new_top_fail(self):
         """
-        计算新Limit的制程能力
-        TODO: future
+        计算新Limit的制程能力 -> 需要用到limit数据
+        TODO: future, 20230124 Done
         :return:
         """
+        self.top_fail_dict = CapabilityUtils.calculation_new_top_fail(self.df_module)
 
     def screen_df(self, test_ids: List[int]):
         """
@@ -409,12 +462,19 @@ class Li(QObject):
         筛选: 底层数据也改为NewData, 数据拆除
         TODO: future
         """
+        ptmd_df = self.df_module.ptmd_df
+        new_ptmd_df = ptmd_df[ptmd_df.TEST_ID.isin(test_ids)]
+        self.df_module.ptmd_df = new_ptmd_df
 
-    def drop_data_by_select_limit(self, func: str, limit_new: Dict[str, Tuple[float, float]]) -> bool:
+    def drop_data_by_select_limit(self, func: str, limit_new: Dict[int, Tuple[float, float, str, str]]):
         """
         将选取测试项目limit内的数据删掉, 或是将limit外的数据删掉
-        TODO: future
-        :param func: Union[inner,outer]
+        TODO: future.
+            难度比较高, 逻辑先理清楚
+            1. 先获取到所有的选取的测试项目
+            2. 再逐项的筛选出Only Pass 或 Only Fail的数据
+            3. 使用logic_and
+        :param func: Union["inner", "outer"]
         :param limit_new:
         :return:
         """

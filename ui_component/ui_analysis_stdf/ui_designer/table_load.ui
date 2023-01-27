@@ -22,7 +22,7 @@
      <item>
       <widget class="QPushButton" name="pushButton">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>改变Limit后重算Rate</string>
@@ -32,27 +32,34 @@
      <item>
       <widget class="QPushButton" name="pushButton_2">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
-        <string>删除选中项目Limit外的数据</string>
+        <string>只看选中项目PASS数据</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_5">
+       <property name="text">
+        <string>只看选中项目FAIL数据</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_4">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
-        <string>只对选中项目的数据进行分析</string>
+        <string>对选中项目分析</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_3">
        <property name="text">
-        <string>回车筛选</string>
+        <string/>
        </property>
        <property name="icon">
         <iconset resource="../../ui_resource/pyqtsource.qrc">
@@ -61,7 +68,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="placeholderText">
+        <string>回车筛选</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="checkBox">

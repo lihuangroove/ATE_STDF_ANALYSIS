@@ -26,6 +26,9 @@ from ui_component.ui_common.my_text_browser import Print
 
 
 class RunStdfAnalysis(QThread):
+    """
+    结束测试时间还是非常需要的, 考虑下只有在线版本才有这个功能是否会方便一些
+    """
     stdf = None  # type:LinkStdf
     file_list = None  # type:List[dict]
     id = 0
@@ -82,8 +85,8 @@ class RunStdfAnalysis(QThread):
             by_analysis_data_dict = {
                 **SemiStdfUtils.get_lot_info_by_semi_ate(each["FILE_PATH"], FILE_NAME=file_name, ID=mdi_id),
                 **ParserData.get_yield(prr, each["PART_FLAG"], each["READ_FAIL"]),
-                "PART_FLAG": str(each["PART_FLAG"]),
-                "READ_FAIL": str("1" if each["READ_FAIL"] else 0),
+                "PART_FLAG": each["PART_FLAG"],
+                "READ_FAIL": 1 if each["READ_FAIL"] else 0,
                 "HDF5_PATH": save_name,
             }
             """ 阻止不同的程序一起解析 """

@@ -50,7 +50,11 @@ class LanguageZh:
 
     }
 
-    PLOT_BACKEND = ("JMP", "PyqtGraph", "Altair")
+    R = {
+
+    }
+
+    PLOT_BACKEND = ("JMP", "PyqtGraph", "Altair", "R")
 
     kwargs = {}
     for key, values in JmpSetting.items():

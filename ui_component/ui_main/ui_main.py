@@ -241,13 +241,7 @@ class Main_Ui(QMainWindow, Ui_MainWindow):
         mdi = self.mdi()  # type:StdfLoadUi
         if mdi is None:
             return
-        if no_test_id:
-            return mdi.li.get_unstack_data_to_csv_or_jmp_or_altair([])
-        test_id_list = mdi.get_test_id_column()
-        if test_id_list is None:
-            self.message_show("未选取测试项目无法进行图形生成@")
-            return
-        return mdi.li.get_unstack_data_to_csv_or_jmp_or_altair(test_id_list)
+        return mdi.get_select_data_to_csv_or_jmp_or_altair(no_test_id)
 
     @Slot()
     def on_action_distribution_triggered(self):

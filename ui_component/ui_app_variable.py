@@ -90,7 +90,7 @@ class UiGlobalVariable:
     GraphUseLocalColor = False
     GraphPlotBin = True
     GraphBins = 60
-    GraphScreen = 1
+    GraphScreen = 0
     GraphMeanAddSubSigma = 3
     GraphPlotColumn = 1
     GraphPlotScatterSimple = False
@@ -152,6 +152,10 @@ class UiGlobalVariable:
     ALTAIR_CHARTS = [
         ALL_CHART_ACTIONS[3],
         ALL_CHART_ACTIONS[-1]
+    ]
+
+    R_CHARTS = [
+
     ]
 
     WEB_ACTIONS = [

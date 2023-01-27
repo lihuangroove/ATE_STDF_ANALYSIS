@@ -55,18 +55,18 @@ class NewJmpFactory:
             h_limit = h_limit + 1
         if not is_dis:
             return {
-                "l_limit": round(l_limit, UiGlobalVariable.JmpPlotFloatRound),
-                "h_limit": round(h_limit, UiGlobalVariable.JmpPlotFloatRound),
-                "step_nm": round(step_nm, UiGlobalVariable.JmpPlotFloatRound),
+                "l_limit": format(l_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+                "h_limit": format(h_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+                "step_nm": format(step_nm, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
             }
         return {
             "decimal": UiGlobalVariable.JmpPlotFloatRound,
-            "min": round(l_limit - 8 * step_nm, UiGlobalVariable.JmpPlotFloatRound),
-            "max": round(h_limit + 8 * step_nm, UiGlobalVariable.JmpPlotFloatRound),
-            "l_limit": round(l_limit, UiGlobalVariable.JmpPlotFloatRound),
-            "h_limit": round(h_limit, UiGlobalVariable.JmpPlotFloatRound),
-            "inc": round(step_nm, UiGlobalVariable.JmpPlotFloatRound),
-            "avg": round(cpk_info["AVG"], UiGlobalVariable.JmpPlotFloatRound),
+            "min": format(l_limit - 8 * step_nm, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+            "max": format(h_limit + 8 * step_nm, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+            "l_limit": format(l_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+            "h_limit": format(h_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+            "inc": format(step_nm, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+            "avg": format(cpk_info["AVG"], '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
         }
 
     @staticmethod
