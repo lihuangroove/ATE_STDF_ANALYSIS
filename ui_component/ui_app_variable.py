@@ -98,6 +98,10 @@ class UiGlobalVariable:
     GraphPlotFloatRound = 6
     GraphPlotWidth = 1000
     GraphPlotHeight = 600
+    GraphCpkLoClamp = 0
+    GraphCpkHiClamp = 1
+    GraphTopFailClamp = 0
+    GraphRejectClamp = 0
     # --------------------------------------------------------------- 参数
     GRAPH_PARAMS = [
         {
@@ -125,6 +129,18 @@ class UiGlobalVariable:
 
                 {'name': language.GraphSetting["GraphPlotHeight"], 'type': 'int',
                  'value': GraphPlotHeight},
+
+                {'name': language.GraphSetting["GraphCpkLoClamp"], 'type': 'float',
+                 'value': GraphCpkLoClamp},
+
+                {'name': language.GraphSetting["GraphCpkHiClamp"], 'type': 'float',
+                 'value': GraphCpkHiClamp},
+
+                {'name': language.GraphSetting["GraphTopFailClamp"], 'type': 'float',
+                 'value': GraphTopFailClamp},
+
+                {'name': language.GraphSetting["GraphRejectClamp"], 'type': 'float',
+                 'value': GraphRejectClamp},
             ]
         },
     ]
@@ -169,7 +185,7 @@ class UiGlobalVariable:
                         "HARD_BIN MAP", "FIRST_FAIL MAP", "VISUAL_MAP(热图)", "VISUAL_MAP(点型)", "数据Filter"]
 
     SUMMARY_GROUP = ["LOT_ID", "SBLOT_ID", "WAFER_ID", "FLOW_ID", "TEST_COD", "NODE_NAM", "BLUE_FILM_ID"]
-    DATA_GROUP = ["SITE_NUM"]
+    DATA_GROUP = ["HEAD_NUM", "SITE_NUM"]
 
     PROCESS_VALUE = ["MEAN", "STD", "CPK"]
     PROCESS_TOP_ITEM_LIST = ["YIELD", "DATA"]

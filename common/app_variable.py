@@ -194,11 +194,6 @@ class GlobalVariable:
     LO_LIMIT_TYPE_COLUMN = 17
     HI_LIMIT_TYPE_COLUMN = 18
 
-    CPK_LO = 0
-    CPK_HI = 1
-    TOP_FAIL_LO = 0
-    REJECT_LO = 0
-
     @staticmethod
     def init():
         if not os.path.exists(GlobalVariable.CACHE_PATH):

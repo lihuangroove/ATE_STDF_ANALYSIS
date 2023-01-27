@@ -44,6 +44,11 @@ class LanguageZh:
         "GraphPlotFloatRound": "绘图小数精确位",
         "GraphPlotWidth": "绘图最大宽度",
         "GraphPlotHeight": "绘图最大高度",
+
+        "GraphCpkLoClamp": "CPK最小值卡控",
+        "GraphCpkHiClamp": "CPK最大值卡控",
+        "GraphTopFailClamp": "TopFail颗数最小值卡控",
+        "GraphRejectClamp": "失效颗数最小值卡控",
     }
 
     Altair = {

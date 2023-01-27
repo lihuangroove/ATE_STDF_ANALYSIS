@@ -47,7 +47,7 @@ class QthCalculation(QThread):
         self.event_send(4)
         self.li.calculation_capability()
         self.event_send(5)
-        self.li.background_generation_data_use_to_chart_and_to_save_csv()
+        # self.li.background_generation_data_use_to_chart_and_to_save_csv()
         self.event_send(6)
 
 

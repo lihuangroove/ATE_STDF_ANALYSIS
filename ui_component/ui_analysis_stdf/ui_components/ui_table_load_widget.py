@@ -15,6 +15,7 @@ from PySide2.QtWidgets import QWidget, QAbstractItemView, QTableWidget, QMessage
 from common.app_variable import GlobalVariable
 from common.li import Li, SummaryCore
 from ui_component.ui_analysis_stdf.ui_designer.ui_table_load import Ui_Form as TableLoadForm
+from ui_component.ui_app_variable import UiGlobalVariable
 from ui_component.ui_common.my_text_browser import Print
 from ui_component.ui_common.ui_utils import QTableUtils, QWidgetUtils
 from ui_component.ui_module.table_module import PauseTableWidget
@@ -68,7 +69,7 @@ class QthCalculation(QThread):
         self.event_send(4)
         self.li.calculation_capability()
         self.event_send(5)
-        self.li.background_generation_data_use_to_chart_and_to_save_csv()
+        # self.li.background_generation_data_use_to_chart_and_to_save_csv()
         self.event_send(6)
 
 
@@ -146,17 +147,17 @@ class TableLoadWidget(QWidget, TableLoadForm):
             cpk = float(self.cpk_info_table.item(index, GlobalVariable.CPK_COLUMN).text())
             top_fail = float(self.cpk_info_table.item(index, GlobalVariable.TOP_FAIL_COLUMN).text())
             reject = float(self.cpk_info_table.item(index, GlobalVariable.REJECT_COLUMN).text())
-            if GlobalVariable.CPK_LO < cpk < GlobalVariable.CPK_HI:
+            if UiGlobalVariable.GraphCpkLoClamp < cpk < UiGlobalVariable.GraphCpkHiClamp:
                 x.append(0)
                 cpk_l.append(length - index)
                 item = self.cpk_info_table.item(index, GlobalVariable.CPK_COLUMN)
                 item.setBackground(QColor(250, 194, 5, 50))
-            if top_fail > GlobalVariable.TOP_FAIL_LO:
+            if top_fail > UiGlobalVariable.GraphTopFailClamp:
                 y.append(1)
                 top_fail_l.append(length - index)
                 item = self.cpk_info_table.item(index, GlobalVariable.TOP_FAIL_COLUMN)
                 item.setBackground(QColor(217, 83, 25, 150))
-            if reject > GlobalVariable.REJECT_LO:
+            if reject > UiGlobalVariable.GraphRejectClamp:
                 z.append(2)
                 reject_l.append(length - index)
                 item = self.cpk_info_table.item(index, GlobalVariable.REJECT_COLUMN)
@@ -184,9 +185,9 @@ class TableLoadWidget(QWidget, TableLoadForm):
             return Print.warning("工作线程正在运行中!")
         self.th.set_new_limit(new_limit)
         if self.message_show("注意,Limit已经更新!!!,如果只看PASS请选择否!"):
-            self.th.set_only_pass(True)
-        else:
             self.th.set_only_pass(False)
+        else:
+            self.th.set_only_pass(True)
         self.th.start()
 
     @Slot()
