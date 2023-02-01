@@ -47,7 +47,7 @@ class UiGlobalVariable:
     JmpScreen = 0
     JmpMeanAddSubSigma = 3
     JmpPlotColumn = 1
-    JmpPlotFloatRound = 6
+    JmpPlotFloatRound = 9
     # --------------------------------------------------------------- 参数
     JMP_PARAMS = [
         {
@@ -95,7 +95,7 @@ class UiGlobalVariable:
     GraphPlotColumn = 1
     GraphPlotScatterSimple = False
     GraphPlotScatterSimpleNum = 10000
-    GraphPlotFloatRound = 6
+    GraphPlotFloatRound = 9
     GraphPlotWidth = 1000
     GraphPlotHeight = 600
     GraphCpkLoClamp = 0
@@ -141,6 +141,9 @@ class UiGlobalVariable:
 
                 {'name': language.GraphSetting["GraphRejectClamp"], 'type': 'float',
                  'value': GraphRejectClamp},
+
+                {'name': language.GraphSetting["GraphPlotFloatRound"], 'type': 'int',
+                 'value': GraphPlotFloatRound},
             ]
         },
     ]

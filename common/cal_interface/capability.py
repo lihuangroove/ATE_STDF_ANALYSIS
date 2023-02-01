@@ -15,9 +15,14 @@ import numpy as np
 from app_test.test_utils.wrapper_utils import Time
 from common.app_variable import PtmdModule, LimitType, DataModule, DatatType, Calculation, FailFlag
 from parser_core.stdf_parser_func import PtmdOptFlag, DtpTestFlag, PtmdParmFlag
+from ui_component.ui_app_variable import UiGlobalVariable
 
 
 class CapabilityUtils:
+    """
+    要注意:
+        存到数据库中的数据必然不能被Round操作
+    """
 
     @staticmethod
     # @Time()
@@ -160,6 +165,7 @@ class CapabilityUtils:
         #     return factor
 
         # data_df["RESULT"] = _mad(data_df["RESULT"])
+        decimal = UiGlobalVariable.GraphPlotFloatRound
         fail_exec = data_df.FAIL_FLG == FailFlag.FAIL
         reject_qty = len(data_df[fail_exec])
         if len(data_df) == reject_qty:
@@ -168,11 +174,11 @@ class CapabilityUtils:
             pass_df = data_df[~fail_exec]
         data_mean, data_min, data_max, data_std, data_median = \
             pass_df.RESULT.mean(), pass_df.RESULT.min(), pass_df.RESULT.max(), pass_df.RESULT.std(), \
-                pass_df.RESULT.median()
+            pass_df.RESULT.median()
         if data_std == 0:
             data_std = 1E-05
         cpk = round(min([(ptmd.HI_LIMIT - data_mean) / (3 * data_std),
-                         (data_mean - ptmd.LO_LIMIT) / (3 * data_std)]), 6)
+                         (data_mean - ptmd.LO_LIMIT) / (3 * data_std)]), decimal)
         l_limit_type = LimitType.ThenLowLimit
         if ptmd.OPT_FLAG & PtmdOptFlag.NoLowLimit:
             l_limit_type = LimitType.NoLowLimit
@@ -189,23 +195,24 @@ class CapabilityUtils:
             "TEST_NUM": ptmd.TEST_NUM,
             "TEST_TXT": ptmd.TEST_TXT,
             "UNITS": ptmd.UNITS,
-            "LO_LIMIT": round(ptmd.LO_LIMIT, 6),
-            "HI_LIMIT": round(ptmd.HI_LIMIT, 6),
-            "AVG": round(data_mean, 6),
-            "STD": round(data_std, 6),
+            "LO_LIMIT": round(ptmd.LO_LIMIT, decimal),
+            "HI_LIMIT": round(ptmd.HI_LIMIT, decimal),
+            "AVG": round(data_mean, decimal),
+            "STD": round(data_std, decimal),
             "CPK": abs(cpk),
+            "MEDIAN": round(data_median, decimal),
             "QTY": len(data_df),
             "FAIL_QTY": top_fail_qty,
             # TODO: 注意 top fail的Rate一定是要%总颗数,不能%测试颗数, 待更新
             "FAIL_RATE": "{}%".format(round(top_fail_qty / all_qty * 100, 3)),
             "REJECT_QTY": reject_qty,
             "REJECT_RATE": "{}%".format(round(reject_qty / len(data_df) * 100, 3)),
-            "MIN": round(data_min, 6),  # 注意, 是取得PASS区域的数据
-            "MAX": round(data_max, 6),  # 注意, 是取得PASS区域的数据
+            "MIN": round(data_min, decimal),  # 注意, 是取得PASS区域的数据
+            "MAX": round(data_max, decimal),  # 注意, 是取得PASS区域的数据
             "LO_LIMIT_TYPE": l_limit_type,
             "HI_LIMIT_TYPE": h_limit_type,
-            "ALL_DATA_MIN": round(data_df.RESULT.min(), 6),
-            "ALL_DATA_MAX": round(data_df.RESULT.max(), 6),
+            "ALL_DATA_MIN": round(data_df.RESULT.min(), decimal),
+            "ALL_DATA_MAX": round(data_df.RESULT.max(), decimal),
             "TEXT": ptmd.TEXT,
         }
         # return Calculation(**temp_dict)
@@ -223,6 +230,7 @@ class CapabilityUtils:
         :param all_qty:
         :return:
         """
+        decimal = UiGlobalVariable.GraphPlotFloatRound
         reject_qty = len(data_df[data_df.TEST_FLG & DtpTestFlag.TestFailed == DtpTestFlag.TestFailed])
         temp_dict = {
             "TEST_ID": ptmd.TEST_ID,  # 每个测试项目最后整合后只会有唯一一个TEST_ID
@@ -230,8 +238,8 @@ class CapabilityUtils:
             "TEST_NUM": ptmd.TEST_NUM,
             "TEST_TXT": ptmd.TEST_TXT,
             "UNITS": ptmd.UNITS,
-            "LO_LIMIT": round(ptmd.LO_LIMIT, 6),
-            "HI_LIMIT": round(ptmd.HI_LIMIT, 6),
+            "LO_LIMIT": round(ptmd.LO_LIMIT, decimal),
+            "HI_LIMIT": round(ptmd.HI_LIMIT, decimal),
             "AVG": np.nan,
             "STD": np.nan,
             "CPK": np.nan,

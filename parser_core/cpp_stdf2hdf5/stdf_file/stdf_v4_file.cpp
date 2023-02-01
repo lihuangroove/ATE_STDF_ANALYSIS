@@ -374,12 +374,19 @@ void STDF_FILE::data_write(std::ofstream& csv_dtp, std::ofstream& csv_ptmd, std:
 		csv_ptmd << temp_ptmd->impl->TEST_TXT << delimiter;
 		csv_ptmd << temp_ptmd->impl->PARM_FLG.to_ulong() << delimiter;
 		csv_ptmd << temp_ptmd->impl->OPT_FLAG.to_ulong() << delimiter;
+		// 在数据载入的时候提示是否需要做单位的格式转换
 		csv_ptmd << (I4)temp_ptmd->impl->RES_SCAL << delimiter;
 		csv_ptmd << (I4)temp_ptmd->impl->LLM_SCAL << delimiter;
 		csv_ptmd << (I4)temp_ptmd->impl->HLM_SCAL << delimiter;
 		csv_ptmd << temp_ptmd->impl->LO_LIMIT << delimiter;
 		csv_ptmd << temp_ptmd->impl->HI_LIMIT << delimiter;
-		csv_ptmd << temp_ptmd->impl->UNITS << linefeed;
+		csv_ptmd << temp_ptmd->impl->UNITS << delimiter;
+		// 基本用不到的
+		csv_ptmd << temp_ptmd->impl->C_RESFMT << delimiter;
+		csv_ptmd << temp_ptmd->impl->C_LLMFMT << delimiter;
+		csv_ptmd << temp_ptmd->impl->C_HLMFMT << delimiter;
+		csv_ptmd << temp_ptmd->impl->LO_SPEC << delimiter;
+		csv_ptmd << temp_ptmd->impl->HI_SPEC << linefeed;
 
 		delete temp_ptmd; temp_ptmd = nullptr;
 	}
@@ -389,6 +396,7 @@ void STDF_FILE::data_write(std::ofstream& csv_dtp, std::ofstream& csv_ptmd, std:
 	{
 		StdfPRR* temp_prr = *it;
 		csv_prr << temp_prr->impl->PART_ID.c_str() << delimiter;
+		csv_prr << temp_prr->impl->PART_TXT.c_str() << delimiter; // 后面用作类似teststand的的UUT NAME, 待都Ready后
 		csv_prr << (U2)temp_prr->impl->HEAD_NUM << delimiter;
 		csv_prr << (U2)temp_prr->impl->SITE_NUM << delimiter;
 		csv_prr << temp_prr->impl->X_COORD << delimiter;
@@ -616,6 +624,7 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 					temp_ptmd->impl->LO_LIMIT = temp_mpr->impl->LO_LIMIT;
 					temp_ptmd->impl->HI_LIMIT = temp_mpr->impl->HI_LIMIT;
 					temp_ptmd->impl->UNITS = temp_mpr->impl->UNITS;
+					temp_ptmd->impl->C_RESFMT = temp_mpr->impl->C_RESFMT;
 					temp_ptmd->impl->C_LLMFMT = temp_mpr->impl->C_LLMFMT;
 					temp_ptmd->impl->C_HLMFMT = temp_mpr->impl->C_HLMFMT;
 					temp_ptmd->impl->LO_SPEC = temp_mpr->impl->LO_SPEC;
@@ -794,11 +803,17 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 		}
 		if (type == HBR_TYPE)
 		{
-			Pass;
+			StdfRecord* record = header.create_record(type);
+			record->parse(header);
+			StdfHBR* temp_hbr = static_cast<StdfHBR*>(record);
+			StdfHBR_Vector.push_back(temp_hbr);
 		}
 		if (type == SBR_TYPE)
 		{
-			Pass;
+			StdfRecord* record = header.create_record(type);
+			record->parse(header);
+			StdfSBR* temp_sbr = static_cast<StdfSBR*>(record);
+			StdfSBR_Vector.push_back(temp_sbr);
 		}
 		if (type == MRR_TYPE)
 		{
@@ -806,10 +821,17 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 			StdfRecord* record = header.create_record(type);
 			record->parse(header);
 			mrr_record = static_cast<StdfMRR*>(record);
-			FINISH_T = mrr_record->impl->FINISH_T;
-			delete mrr_record;
-			mrr_record = nullptr;
 			break;
+		}
+		if (type == PCR_TYPE)
+		{
+			// 不需要, 用pandas
+			continue;
+		}
+		if (type == TSR_TYPE)
+		{
+			// 需要否, 感觉不需要, 自己算
+			continue;
 		}
 	}
 	in2.close();
@@ -817,8 +839,17 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 	// ===================================== 处理未写入到H5的数据
 	data_write(csv_dtp, csv_ptmd, csv_prr);
 	csv_dtp.close(); csv_ptmd.close(); csv_prr.close();
-	delete mrr_record;
-	mrr_record = nullptr;
+	// ===================================== 处理可以在最后写入的数据
+	if (mrr_record == nullptr)
+	{
+		FINISH_T = 0;
+	}
+	else
+	{
+		FINISH_T = mrr_record->impl->FINISH_T;
+		delete mrr_record;
+		mrr_record = nullptr;
+	}
 	return STDF_OPERATE_OK;
 }
 

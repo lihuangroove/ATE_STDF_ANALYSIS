@@ -189,10 +189,10 @@ class GlobalVariable:
     LO_LIMIT_COLUMN = 5
     HI_LIMIT_COLUMN = 6
     CPK_COLUMN = 9
-    TOP_FAIL_COLUMN = 11
-    REJECT_COLUMN = 13
-    LO_LIMIT_TYPE_COLUMN = 17
-    HI_LIMIT_TYPE_COLUMN = 18
+    TOP_FAIL_COLUMN = 12
+    REJECT_COLUMN = 14
+    LO_LIMIT_TYPE_COLUMN = 18
+    HI_LIMIT_TYPE_COLUMN = 19
 
     @staticmethod
     def init():

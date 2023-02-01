@@ -54,6 +54,7 @@ public:
 	Cn UNITS;
 
 	// 基本用不到的
+	Cn C_RESFMT;
 	Cn C_LLMFMT;
 	Cn C_HLMFMT;
 	R4 LO_SPEC;
