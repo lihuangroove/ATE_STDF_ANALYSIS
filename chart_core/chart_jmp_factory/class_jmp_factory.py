@@ -66,6 +66,7 @@ class NewJmpFactory:
             "l_limit": format(l_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
             "h_limit": format(h_limit, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
             "inc": format(step_nm, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
+            "t_inc": format(step_nm * 2, '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
             "avg": format(cpk_info["AVG"], '.{}f'.format(UiGlobalVariable.JmpPlotFloatRound)),
         }
 
@@ -105,10 +106,9 @@ class NewJmpFactory:
             dis_limit_box = ""
             if not UiGlobalVariable.JmpNoLimit:
                 jmp_lsl_usl = NewJmpFactory.get_jmp_lsl_usl(row, is_dis=True)
-                jmp_lsl_usl["inc"] = jmp_lsl_usl["inc"] * 2
                 dis_limit_box = """
             Dispatch( {{:"{column}"}} , "1", ScaleBox, 
-            {{Min( {min} ), Max( {max} ), Inc( {inc} ), Minor Ticks( 1 )}})
+            {{Min( {min} ), Max( {max} ), Inc( {t_inc} ), Minor Ticks( 1 )}})
                 """.format(
                     column=key,
                     **jmp_lsl_usl
