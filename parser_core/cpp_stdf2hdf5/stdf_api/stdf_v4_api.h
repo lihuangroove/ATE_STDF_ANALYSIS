@@ -341,7 +341,7 @@ public:
     unsigned int unparse(StdfHeader& record);
 	void print(std::ostream& os) const;
 
-private:
+// private:
     typedef class HardwareBin Impl;
     Impl *impl;
 };
@@ -371,7 +371,7 @@ public:
     unsigned int unparse(StdfHeader& record);
 	void print(std::ostream& os) const;
 
-private:
+// private:
     typedef class SoftwareBin Impl;
     Impl *impl;
 };

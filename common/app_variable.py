@@ -101,6 +101,7 @@ class DataModule:
     prr_df: pd.DataFrame = None
     dtp_df: pd.DataFrame = None  # 数据
     ptmd_df: pd.DataFrame = None  # 测试项目相关
+    bin_df: pd.DataFrame = None
 
 
 class DatatType:
@@ -164,9 +165,9 @@ class GlobalVariable:
     SKIP_FILE_TABLE_DATA_HEAD = {"READ_FAIL", "PART_FLAG"}
 
     # Save memory
-    PRR_HEAD = ("PART_ID", "HEAD_NUM", "SITE_NUM", "X_COORD", "Y_COORD", "HARD_BIN", "SOFT_BIN", "PART_FLG",
+    PRR_HEAD = ("PART_ID", "PART_TXT", "HEAD_NUM", "SITE_NUM", "X_COORD", "Y_COORD", "HARD_BIN", "SOFT_BIN", "PART_FLG",
                 "NUM_TEST", "FAIL_FLAG", "TEST_T")
-    PRR_TYPE = (U2, U1, U1, I2, I2, U2, U2, U1, U2, U1, U4,)
+    PRR_TYPE = (U2, str, U1, U1, I2, I2, U2, U2, U1, U2, U1, U4,)
     PRR_TYPE_DICT = dict(zip(PRR_HEAD, PRR_TYPE))
 
     DTP_HEAD = ("PART_ID", "TEST_ID", "RESULT", "TEST_FLG", "PARM_FLG", "OPT_FLAG", "LO_LIMIT", "HI_LIMIT")
@@ -174,9 +175,13 @@ class GlobalVariable:
     DTP_TYPE_DICT = dict(zip(DTP_HEAD, DTP_TYPE))
 
     PTMD_HEAD = ("TEST_ID", "DATAT_TYPE", "TEST_NUM", "TEST_TXT", "PARM_FLG", "OPT_FLAG", "RES_SCAL", "LLM_SCAL",
-                 "HLM_SCAL", "LO_LIMIT", "HI_LIMIT", "UNITS")
-    PTMD_TYPE = (U2, str, U4, str, U1, U1, I1, I1, I1, R4, R4, str)
+                 "HLM_SCAL", "LO_LIMIT", "HI_LIMIT", "UNITS", "C_RESFMT", "C_LLMFMT", "C_HLMFMT", "LO_SPEC", "HI_SPEC")
+    PTMD_TYPE = (U2, str, U4, str, U1, U1, I1, I1, I1, R4, R4, str, str, str, str, R4, R4)
     PTMD_TYPE_DICT = dict(zip(PTMD_HEAD, PTMD_TYPE))
+
+    BIN_HEAD = ("BIN_TYPE", "BIN_NUM", "BIN_PF", "BIN_NAM")
+    BIN_TYPE = (str, int, str, str)
+    BIN_TYPE_DICT = dict(zip(BIN_HEAD, BIN_TYPE))
 
     JMP_SCRIPT_HEAD = ["GROUP", "DA_GROUP", "PART_ID", "X_COORD", "Y_COORD", "HARD_BIN", "SOFT_BIN", "FAIL_FLAG"]
 
@@ -211,15 +216,13 @@ class TestVariable:
     TEMP_PRR_PATH = os.path.join(TEMP_PATH, "StdfTempPrr.csv")
     TEMP_DTP_PATH = os.path.join(TEMP_PATH, "StdfTempDtp.csv")
     TEMP_PTMD_PATH = os.path.join(TEMP_PATH, "StdfTempPtmd.csv")
-    TEMP_BIN_PATH = os.path.join(TEMP_PATH, "StdfTempHardSoftBin.csv")
+    TEMP_BIN_PATH = os.path.join(TEMP_PATH, "BinName.csv")
 
     PATHS = (TEMP_PRR_PATH, TEMP_DTP_PATH, TEMP_PTMD_PATH, TEMP_BIN_PATH)
 
     # HDF5_PATH = os.path.join(GlobalVariable.CACHE_PATH, "TEST_DATA.h5")
-    HDF5_PATH = r"D:\1_STDF\STDF_CACHE\TEST_DATA.h5"
-    HDF5_2_PATH = r"D:\1_STDF\STDF_CACHE\TEST.h5"
-    HDF5_3_PATH = r"D:\1_STDF\STDF_CACHE\N49HT00000\DEMO1_CP1.h5"
-    # HDF5_PATH = r".\test_data\TEST.h5"
+    HDF5_PATH = r"D:\1_STDF\STDF_CACHE\DEMO_DATA.h5"
+    HDF5_2_PATH = r"D:\1_STDF\STDF_CACHE\DEMO_CP1.h5"
 
     TABLE_PICKLE_PATH = os.path.join(GlobalVariable.CACHE_PATH, '{}.pkl'.format("TABLE_DATA"))
 

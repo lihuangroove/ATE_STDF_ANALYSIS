@@ -39,13 +39,6 @@ class SemiStdfUtils:
             'START_T': 0,
             'SITE_CNT': 0,
         }
-        if "DEMO" in filepath:
-            data_dict["LOT_ID"] = "DEMO_LOT"
-            data_dict["SBLOT_ID"] = "DEMO_SB"
-            data_dict["WAFER_ID"] = "DEMO_WAFER"
-            data_dict["TEST_COD"] = "CP1"
-            data_dict["FLOW_ID"] = "R0"
-            return data_dict
         for REC in STDF.records_from_file(filepath):
             if REC.id == "PIR": break
             if REC is None: continue

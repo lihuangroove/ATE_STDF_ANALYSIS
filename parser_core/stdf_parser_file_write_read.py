@@ -42,7 +42,8 @@ class ParserData:
                 TestVar.TEMP_DTP_PATH, header=None, names=GloVar.DTP_HEAD, dtype=GloVar.DTP_TYPE_DICT)
             ptmd_df = pd.read_csv(
                 TestVar.TEMP_PTMD_PATH, header=None, names=GloVar.PTMD_HEAD, dtype=GloVar.PTMD_TYPE_DICT)
-
+            bin_df = pd.read_csv(
+                TestVar.TEMP_BIN_PATH, header=None, names=GloVar.BIN_HEAD, dtype=GloVar.BIN_TYPE_DICT)
             # if 93k?
             new_ptmd_list = []
             # ========================= TODO: only for 93k
@@ -71,8 +72,8 @@ class ParserData:
                 new_ptmd_list.append(each)
             ptmd_df = pd.DataFrame(new_ptmd_list)
             # ==================================================
-
-            df_module = DataModule(prr_df=prr_df, dtp_df=dtp_df, ptmd_df=ptmd_df)
+            if len(bin_df) == 0: bin_df = None
+            df_module = DataModule(prr_df=prr_df, dtp_df=dtp_df, ptmd_df=ptmd_df, bin_df=bin_df)
             return df_module
         except Exception as err:
             print(err)
@@ -83,6 +84,8 @@ class ParserData:
             df_module.prr_df.to_hdf(file_path, "prr_df", mode="w")
             df_module.ptmd_df.to_hdf(file_path, "ptmd_df", mode="r+", format="table")
             df_module.dtp_df.to_hdf(file_path, "dtp_df", mode="r+")
+            if df_module.bin_df is not None:
+                df_module.bin_df.to_hdf(file_path, "bin_df", mode="r+")
             return True
         except Exception as err:
             print(err)
@@ -159,6 +162,10 @@ class ParserData:
         prr_df = pd.read_hdf(file_path, key="prr_df")
         dtp_df = pd.read_hdf(file_path, key="dtp_df")
         ptmd_df = pd.read_hdf(file_path, key="ptmd_df")
+        try:
+            bin_df = pd.read_hdf(file_path, key="bin_df")
+        except:
+            bin_df = None
         if not isinstance(prr_df, Df) or not isinstance(dtp_df, Df) or not isinstance(ptmd_df, Df):
             raise Exception("ERROR@!!!load_hdf5_analysis")
         prr_df.insert(0, column="ID", value=unit_id)
@@ -181,7 +188,7 @@ class ParserData:
         dtp_df = pd.concat([temp_pass, temp_fail])
         dtp_df["FAIL_FLG"] = dtp_df["FAIL_FLG"].astype(np.uint8)
 
-        return DataModule(prr_df=prr_df, dtp_df=dtp_df, ptmd_df=ptmd_df)
+        return DataModule(prr_df=prr_df, dtp_df=dtp_df, ptmd_df=ptmd_df, bin_df=bin_df)
 
     # @staticmethod
     # def contact_with_unstack_data_module(args: ValuesView[DataModule]):

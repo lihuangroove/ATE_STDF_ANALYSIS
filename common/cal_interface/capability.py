@@ -73,67 +73,68 @@ class CapabilityUtils:
 
     @staticmethod
     # @Time()
-    def re_cal_top_fail(ptmd: PtmdModule, top_fail_df: pd.DataFrame, data_df: pd.DataFrame):
+    def re_cal_top_fail(ptmd: PtmdModule, prr_df: pd.DataFrame, dtp_unit_df: pd.DataFrame) -> pd.DataFrame:
         """
         重新计算, 使用ptmd中包含的新的limit信息
         :param ptmd:
-        :param top_fail_df:
-        :param data_df:
+        :param prr_df:
+        :param dtp_unit_df:
         :return: 60k row, 40 column, 800ms -> ??? sometimes faster than top_fail function
         """
-        all_qty = len(top_fail_df)
         logic_and = []
-        data_df = data_df[data_df.index.isin(top_fail_df.index)]
         if not ptmd.OPT_FLAG & PtmdOptFlag.NoLowLimit:
             if ptmd.PARM_FLG & PtmdParmFlag.EqualLowLimit:  # >=
-                logic_and.append((data_df.RESULT >= ptmd.LO_LIMIT))
+                logic_and.append((dtp_unit_df.RESULT >= ptmd.LO_LIMIT))
             else:  # >
-                logic_and.append((data_df.RESULT > ptmd.LO_LIMIT))
+                logic_and.append((dtp_unit_df.RESULT > ptmd.LO_LIMIT))
         if not ptmd.OPT_FLAG & PtmdOptFlag.NoHighLimit:
             if ptmd.PARM_FLG & PtmdParmFlag.EqualHighLimit:  # <=
-                logic_and.append((data_df.RESULT <= ptmd.HI_LIMIT))
+                logic_and.append((dtp_unit_df.RESULT <= ptmd.HI_LIMIT))
             else:  # <
-                logic_and.append((data_df.RESULT < ptmd.HI_LIMIT))
+                logic_and.append((dtp_unit_df.RESULT < ptmd.HI_LIMIT))
         if len(logic_and) == 0:  # No fail
-            return top_fail_df, 0
+            return dtp_unit_df
         if len(logic_and) == 1:
             items = logic_and[0]
-            fail_df = data_df.loc[~items]
+            fail_df = dtp_unit_df.loc[~items]
         else:
             items = np.logical_and(*logic_and)
-            fail_df = data_df.loc[~items]
-        fail_qty = len(fail_df)
-        top_fail_df = top_fail_df[~top_fail_df.index.isin(fail_df.index)]
-        if len(top_fail_df) > all_qty:
-            raise Exception("error len(top_fail_df) > all_qty")
-        return top_fail_df, fail_qty
+            fail_df = dtp_unit_df.loc[~items]
+        dtp_unit_df.loc[~items, "FAIL_FLG"] = FailFlag.FAIL
+        prr_df.loc[prr_df.index.isin(fail_df.PART_ID), "FAIL_FLAG"] = FailFlag.FAIL
+        return dtp_unit_df
 
     @staticmethod
     @Time()
     def calculation_new_top_fail(df_module: DataModule):
         """
+        TODO:
+            @20230204->需要修改下逻辑->先计算dtp_df的FAIL_FLG->再直接调用calculation_top_fail即可
+            @20230205->后面如果需要更新BIN值, 是否可以在这里面进行操作, ptmd_df 可以扩展?
         重新设置limit值后top fail的计算 -> 精度丢失问题, 即使limit没有变化, 算出来的fail rate和上面的函数可能也不一样
         运行时间肯定会长了一些 -> 实际和上面的操作时间一致? 上面的操作应该会更加简单和速度的.
         Top Fail如何计算? 算逐项fail即可.
         :param df_module:
         :return:
         """
-        df_use_top_fail = df_module.prr_df
-        dtp_df = df_module.dtp_df
-
-        top_fail_dict = {}
+        dtp_df = df_module.dtp_df.copy()
+        dtp_df.loc[:, "FAIL_FLG"] = FailFlag.PASS
+        dtp_df.reset_index(inplace=True)
+        dtp_df_dict = {}
+        new_dtp_df_list = []
+        for test_id, df in dtp_df.groupby("TEST_ID"):
+            dtp_df_dict[test_id] = df
         for row in df_module.ptmd_df.itertuples():  # type:PtmdModule
-            " 逐项计算Top Fail + 根据dict中的limit重新计算 "
-            df_use_top_fail, fail_qty = CapabilityUtils.re_cal_top_fail(
+            unit_dtp = CapabilityUtils.re_cal_top_fail(
                 row,
-                df_use_top_fail,
-                dtp_df.loc[row.TEST_ID]
+                df_module.prr_df,
+                dtp_df_dict[row.TEST_ID],
             )
-            try:
-                top_fail_dict[row.TEST_ID] += fail_qty
-            except:
-                top_fail_dict[row.TEST_ID] = fail_qty
-        return top_fail_dict
+            new_dtp_df_list.append(unit_dtp)
+        new_dtp_df = pd.concat(new_dtp_df_list)
+        new_dtp_df.set_index(["TEST_ID", "DIE_ID"], inplace=True)
+        df_module.dtp_df = new_dtp_df
+        return CapabilityUtils.calculation_top_fail(df_module)
 
     @staticmethod
     def calculation_ptr(

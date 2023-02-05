@@ -434,9 +434,9 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 	if (!csv_ptmd)
 		return WRITE_ERROR;
 
-	// 按需要
-	std::ofstream csv_bin(temp + "\\StdfTempHardSoftBin.csv", std::ios::binary);
-	if (!csv_ptmd)
+	// 按需要, 感觉只需要存一下BIN和NAME的关系就行了
+	std::ofstream csv_bin(temp + "\\BinName.csv", std::ios::binary);
+	if (!csv_bin)
 		return WRITE_ERROR;
 
 	std::ifstream in(filename, std::ios::in | std::ios::binary);
@@ -534,6 +534,10 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 	std::map <int, int> key_part_id; // 缓存单个TD中的每个Dut的PartId
 	std::map <U2, Cn> pin_index_name;
 	std::map <std::string, kxU2> only_key_pin_index; // 用于缓存MPR的pin_index
+
+	// bin name 生成
+	std::map <U2, bool> soft_bin_name;
+	std::map <U2, bool> hard_bin_name;
 
 	std::ifstream in2(filename, std::ios::in | std::ios::binary);
 	while (!in2.eof())
@@ -806,14 +810,36 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 			StdfRecord* record = header.create_record(type);
 			record->parse(header);
 			StdfHBR* temp_hbr = static_cast<StdfHBR*>(record);
-			StdfHBR_Vector.push_back(temp_hbr);
+			// StdfHBR_Vector.push_back(temp_hbr);
+			if (!hard_bin_name.count(temp_hbr->impl->HBIN_NUM))
+			{
+				csv_bin << "HBR" << delimiter;
+				csv_bin << temp_hbr->impl->HBIN_NUM << delimiter;
+				csv_bin << temp_hbr->get_hardbin_indication() << delimiter;
+				csv_bin << temp_hbr->get_hardbin_name() << linefeed;
+				hard_bin_name.insert(std::pair<U2, bool>(temp_hbr->impl->HBIN_NUM, true));
+			}
+			delete record;
+			record = nullptr;
+			continue;
 		}
 		if (type == SBR_TYPE)
 		{
 			StdfRecord* record = header.create_record(type);
 			record->parse(header);
 			StdfSBR* temp_sbr = static_cast<StdfSBR*>(record);
-			StdfSBR_Vector.push_back(temp_sbr);
+			// StdfSBR_Vector.push_back(temp_sbr);
+			if (!soft_bin_name.count(temp_sbr->impl->SBIN_NUM))
+			{
+				csv_bin << "SBR" << delimiter;
+				csv_bin << temp_sbr->impl->SBIN_NUM << delimiter;
+				csv_bin << temp_sbr->get_softbin_indication() << delimiter;
+				csv_bin << temp_sbr->get_softbin_name() << linefeed;
+				soft_bin_name.insert(std::pair<U2, bool>(temp_sbr->impl->SBIN_NUM, true));
+			}
+			delete record;
+			record = nullptr;
+			continue;
 		}
 		if (type == MRR_TYPE)
 		{
@@ -850,6 +876,27 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 		delete mrr_record;
 		mrr_record = nullptr;
 	}
+
+	//for (std::vector<StdfSBR*>::iterator it = StdfSBR_Vector.begin(); it != StdfSBR_Vector.end(); it++)
+	//{
+	//	StdfSBR* temp_sbr = *it;
+	//	csv_bin << "SBR" << delimiter;
+	//	csv_bin << temp_sbr->get_softbin_number() << delimiter;
+	//	csv_bin << temp_sbr->get_softbin_count() << delimiter;
+	//	csv_bin << temp_sbr->get_softbin_indication() << delimiter;
+	//	csv_bin << temp_sbr->get_softbin_name() << linefeed;
+	//}
+	//for (std::vector<StdfHBR*>::iterator it = StdfHBR_Vector.begin(); it != StdfHBR_Vector.end(); it++)
+	//{
+	//	StdfHBR* temp_sbr = *it;
+	//	csv_bin << "HBR" << delimiter;
+	//	csv_bin << temp_sbr->get_head_number() << delimiter;
+	//	csv_bin << temp_sbr->get_site_number() << delimiter;
+	//	csv_bin << temp_sbr->get_hardbin_number() << delimiter;
+	//	csv_bin << temp_sbr->get_hardbin_count() << delimiter;
+	//	csv_bin << temp_sbr->get_hardbin_indication() << delimiter;
+	//	csv_bin << temp_sbr->get_hardbin_name() << linefeed;
+	//}
 	return STDF_OPERATE_OK;
 }
 

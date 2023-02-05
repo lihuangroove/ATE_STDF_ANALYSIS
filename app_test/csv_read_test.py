@@ -57,11 +57,11 @@ class ReadCsvCase(unittest.TestCase, CsvDataLoad):
         skip_args_time=True,
     )
     def test_gen_pcr(self):
-        pcr_list = [PandasStdfUtils.df_generator_material_pcr(df=self.df_module.prr_df, head_num=0xff, site_num=0xff)]
+        pcr_list = [PandasStdfUtils.df_generator_pcr(df=self.df_module.prr_df, head_num=0xff, site_num=0xff)]
         for site, each_df in self.df_module.prr_df.groupby("SITE_NUM"):
             if not isinstance(site, int):
                 continue
-            pcr_list.append(PandasStdfUtils.df_generator_material_pcr(each_df, 1, site))
+            pcr_list.append(PandasStdfUtils.df_generator_pcr(each_df, 1, site))
         Print.print_table(pcr_list)
 
     @Tester(
@@ -74,11 +74,11 @@ class ReadCsvCase(unittest.TestCase, CsvDataLoad):
 
         :return:
         """
-        hbr_list = PandasStdfUtils.df_generator_material_hbr(self.df_module.prr_df, 0xff, 0xff, )
+        hbr_list = PandasStdfUtils.df_generator_hbr(self.df_module.prr_df, 0xff, 0xff, )
         for site, each_df in self.df_module.prr_df.groupby("SITE_NUM"):
             if not isinstance(site, int):
                 continue
-            hbr_list += PandasStdfUtils.df_generator_material_hbr(each_df, 1, site)
+            hbr_list += PandasStdfUtils.df_generator_hbr(each_df, 1, site)
         Print.print_table(hbr_list)
 
     @Tester(
@@ -87,11 +87,11 @@ class ReadCsvCase(unittest.TestCase, CsvDataLoad):
         skip_args_time=True,
     )
     def test_gen_sbr(self):
-        sbr_list = PandasStdfUtils.df_generator_material_sbr(self.df_module.prr_df, 0xff, 0xff, )
+        sbr_list = PandasStdfUtils.df_generator_sbr(self.df_module.prr_df, 0xff, 0xff, )
         for site, each_df in self.df_module.prr_df.groupby("SITE_NUM"):
             if not isinstance(site, int):
                 continue
-            sbr_list += PandasStdfUtils.df_generator_material_sbr(each_df, 1, site)
+            sbr_list += PandasStdfUtils.df_generator_sbr(each_df, 1, site)
         Print.print_table(sbr_list)
 
     @Tester(

@@ -15,7 +15,7 @@ from parser_core.stdf_parser_func import PrrPartFlag
 
 class PandasStdfUtils:
     @staticmethod
-    def df_generator_material_pcr(df: pd.DataFrame, head_num: int, site_num: int, ) -> dict:
+    def df_generator_pcr(df: pd.DataFrame, head_num: int, site_num: int, ) -> dict:
         good_cnt = len(df[df.FAIL_FLAG == 1])
         pcr = df[df.PART_FLG & PrrPartFlag.FirstTest == 0]
         rt_pcr = df[df.PART_FLG & PrrPartFlag.FirstTest != 0]
@@ -31,7 +31,7 @@ class PandasStdfUtils:
         return record_all
 
     @staticmethod
-    def df_generator_material_hbr(df: pd.DataFrame, head_num: int, site_num: int, bin_name=None) -> list:
+    def df_generator_hbr(df: pd.DataFrame, head_num: int, site_num: int, bin_name=None) -> list:
         """
         注意从MIR中找到bin相关信息
         """
@@ -53,7 +53,7 @@ class PandasStdfUtils:
         return br_data
 
     @staticmethod
-    def df_generator_material_sbr(df: pd.DataFrame, head_num: int, site_num: int, bin_name=None) -> list:
+    def df_generator_sbr(df: pd.DataFrame, head_num: int, site_num: int, bin_name=None) -> list:
         """
         注意从MIR中找到bin相关信息
         """

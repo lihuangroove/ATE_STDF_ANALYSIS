@@ -66,7 +66,7 @@ class LinkStdf:
 
     def get_finish_t(self):
         if not self.import_status:
-            return
+            return 0
         return self._get_finish_t(self.stdf)
 
     @staticmethod
