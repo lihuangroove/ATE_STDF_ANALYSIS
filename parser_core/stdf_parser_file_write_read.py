@@ -137,15 +137,25 @@ class ParserData:
         }
 
     @staticmethod
-    def load_prr_df(file_path: str) -> Union[pd.DataFrame, None]:
+    def load_prr_df(file_path: str, unit_id=1) -> Union[pd.DataFrame, None]:
         """
         理论上, HDF5数据都可以load不会有报错的
+        :param unit_id:
         :param file_path:
         :return:
         """
         df = pd.read_hdf(file_path, key="prr_df")
         if not isinstance(df, Df):
             return None
+        df["DIE_ID"] = df["PART_ID"] + unit_id * GlobalVariable.DIE_ID_ADD
+        return df
+
+    @staticmethod
+    def load_ptmd_df(file_path: str, unit_id=1) -> Union[pd.DataFrame, None]:
+        df = pd.read_hdf(file_path, key="ptmd_df")
+        if not isinstance(df, Df):
+            return None
+        df.insert(0, column="ID", value=unit_id)
         return df
 
     @staticmethod

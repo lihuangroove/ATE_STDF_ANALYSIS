@@ -144,24 +144,27 @@ class TableLoadWidget(QWidget, TableLoadForm):
         self.plot.setYRange(0, length)
         x, y, z, cpk_l, top_fail_l, reject_l = [], [], [], [], [], []
         for index in range(length):
-            cpk = float(self.cpk_info_table.item(index, GlobalVariable.CPK_COLUMN).text())
-            top_fail = float(self.cpk_info_table.item(index, GlobalVariable.TOP_FAIL_COLUMN).text())
-            reject = float(self.cpk_info_table.item(index, GlobalVariable.REJECT_COLUMN).text())
+            cpk_item = self.cpk_info_table.item(index, GlobalVariable.CPK_COLUMN)
+            cpk = float(cpk_item.text())
+            fail_item = self.cpk_info_table.item(index, GlobalVariable.TOP_FAIL_COLUMN)
+            top_fail = float(fail_item.text())
+            reject_item = self.cpk_info_table.item(index, GlobalVariable.REJECT_COLUMN)
+            reject = float(reject_item.text())
+            cpk_item.setBackground(QColor(255, 255, 255))
+            fail_item.setBackground(QColor(255, 255, 255))
+            reject_item.setBackground(QColor(255, 255, 255))
             if UiGlobalVariable.GraphCpkLoClamp < cpk < UiGlobalVariable.GraphCpkHiClamp:
                 x.append(0)
                 cpk_l.append(length - index)
-                item = self.cpk_info_table.item(index, GlobalVariable.CPK_COLUMN)
-                item.setBackground(QColor(250, 194, 5, 50))
+                cpk_item.setBackground(QColor(250, 194, 5, 50))
             if top_fail > UiGlobalVariable.GraphTopFailClamp:
                 y.append(1)
                 top_fail_l.append(length - index)
-                item = self.cpk_info_table.item(index, GlobalVariable.TOP_FAIL_COLUMN)
-                item.setBackground(QColor(217, 83, 25, 150))
+                fail_item.setBackground(QColor(217, 83, 25, 150))
             if reject > UiGlobalVariable.GraphRejectClamp:
                 z.append(2)
                 reject_l.append(length - index)
-                item = self.cpk_info_table.item(index, GlobalVariable.REJECT_COLUMN)
-                item.setBackground(QColor(217, 83, 25, 30))
+                reject_item.setBackground(QColor(217, 83, 25, 30))
 
         plot = pg.ScatterPlotItem(symbol='s', size=3, pen=None)
         plot.addPoints(x, cpk_l, pen=(250, 194, 5))

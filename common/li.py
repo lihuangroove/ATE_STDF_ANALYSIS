@@ -158,6 +158,12 @@ class SummaryCore:
             id_module_dict[ID] = data_module
         return select_summary, id_module_dict
 
+    def show_limit_diff(self, ids: List[int]):
+        """
+        在这边处理就可以了
+        :return:
+        """
+
     # def get_bin_summary(self, ids: List[int], group_params: Union[list, None], da_group_params: Union[list, None]):
     #     """
     #     bin和bin_map这类数据是不需要完全载入详细数据集参数的, 所以数据临时即可取得

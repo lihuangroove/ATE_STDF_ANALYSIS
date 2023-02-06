@@ -101,6 +101,7 @@ class OpenXl:
                 for i in range(len(df_limit)):
                     limit_data = df_limit.iloc[i]
                     if limit_data.TEXT not in temp_lot.index:
+                        print("limit_data.TEXT ->{} not in temp_lot.index".format(limit_data.TEXT))
                         continue
                     lot_limit_data = temp_lot.loc[limit_data.TEXT][each]  # 2022-1-20: CP25片用一个lot
                     sheet_1.cell(head_row + i, now_column).value = lot_limit_data

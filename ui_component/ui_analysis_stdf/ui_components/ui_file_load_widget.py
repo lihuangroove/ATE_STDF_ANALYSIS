@@ -80,8 +80,8 @@ class RunStdfAnalysis(QThread):
             """
             开始读取prr然后进行数据处理!
             """
-            prr = ParserData.load_prr_df(save_name)
             mdi_id = int(self.id + index)
+            prr = ParserData.load_prr_df(save_name, unit_id=mdi_id)
             by_analysis_data_dict = {
                 **SemiStdfUtils.get_lot_info_by_semi_ate(each["FILE_PATH"], FILE_NAME=file_name, ID=mdi_id),
                 **ParserData.get_yield(prr, each["PART_FLAG"], each["READ_FAIL"]),
