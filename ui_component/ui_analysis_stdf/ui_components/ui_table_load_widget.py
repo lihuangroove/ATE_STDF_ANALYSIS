@@ -224,9 +224,9 @@ class TableLoadWidget(QWidget, TableLoadForm):
         self.li.screen_df(test_ids)
         self.th.set_new_limit(None)
         if self.message_show("注意,Limit已经更新!!!,如果只看PASS请选择否!"):
-            self.th.set_only_pass(True)
-        else:
             self.th.set_only_pass(False)
+        else:
+            self.th.set_only_pass(True)
         self.th.start()
 
     def cpk_table_row_hide(self, hide: bool):

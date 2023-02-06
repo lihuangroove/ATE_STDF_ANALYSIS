@@ -73,11 +73,11 @@ class CapabilityUtils:
 
     @staticmethod
     # @Time()
-    def re_cal_top_fail(ptmd: PtmdModule, prr_df: pd.DataFrame, dtp_unit_df: pd.DataFrame) -> pd.DataFrame:
+    def re_cal_top_fail(ptmd: PtmdModule, df_module: DataModule, dtp_unit_df: pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
         """
         重新计算, 使用ptmd中包含的新的limit信息
         :param ptmd:
-        :param prr_df:
+        :param df_module:
         :param dtp_unit_df:
         :return: 60k row, 40 column, 800ms -> ??? sometimes faster than top_fail function
         """
@@ -101,7 +101,7 @@ class CapabilityUtils:
             items = np.logical_and(*logic_and)
             fail_df = dtp_unit_df.loc[~items]
         dtp_unit_df.loc[~items, "FAIL_FLG"] = FailFlag.FAIL
-        prr_df.loc[prr_df.index.isin(fail_df.PART_ID), "FAIL_FLAG"] = FailFlag.FAIL
+        df_module.prr_df.loc[df_module.prr_df.index.isin(fail_df.DIE_ID), "FAIL_FLAG"] = FailFlag.FAIL
         return dtp_unit_df
 
     @staticmethod
@@ -119,6 +119,10 @@ class CapabilityUtils:
         """
         dtp_df = df_module.dtp_df.copy()
         dtp_df.loc[:, "FAIL_FLG"] = FailFlag.PASS
+
+        # TODO: 待添加-> 更新BIN和PART_FLG
+
+        df_module.prr_df.loc[:, "FAIL_FLAG"] = FailFlag.PASS
         dtp_df.reset_index(inplace=True)
         dtp_df_dict = {}
         new_dtp_df_list = []
@@ -127,7 +131,7 @@ class CapabilityUtils:
         for row in df_module.ptmd_df.itertuples():  # type:PtmdModule
             unit_dtp = CapabilityUtils.re_cal_top_fail(
                 row,
-                df_module.prr_df,
+                df_module,
                 dtp_df_dict[row.TEST_ID],
             )
             new_dtp_df_list.append(unit_dtp)
@@ -183,12 +187,12 @@ class CapabilityUtils:
         l_limit_type = LimitType.ThenLowLimit
         if ptmd.OPT_FLAG & PtmdOptFlag.NoLowLimit:
             l_limit_type = LimitType.NoLowLimit
-        if ptmd.PARM_FLG & PtmdParmFlag.EqualLowLimit:
+        elif ptmd.PARM_FLG & PtmdParmFlag.EqualLowLimit:
             l_limit_type = LimitType.EqualLowLimit
         h_limit_type = LimitType.ThenHighLimit
         if ptmd.OPT_FLAG & PtmdOptFlag.NoHighLimit:
             h_limit_type = LimitType.NoHighLimit
-        if ptmd.PARM_FLG & PtmdParmFlag.EqualHighLimit:
+        elif ptmd.PARM_FLG & PtmdParmFlag.EqualHighLimit:
             h_limit_type = LimitType.EqualHighLimit
         temp_dict = {
             "TEST_ID": ptmd.TEST_ID,  # 每个测试项目最后整合后只会有唯一一个TEST_ID
@@ -224,6 +228,7 @@ class CapabilityUtils:
             ptmd: PtmdModule, top_fail_qty: int, data_df: pd.DataFrame, all_qty: int
     ) -> Union[Calculation, dict]:
         """
+        TODO: FTR 也会被转为PTR的数据模型
         只计算fail rate
         :param top_fail_qty:
         :param ptmd:
@@ -231,6 +236,16 @@ class CapabilityUtils:
         :param all_qty:
         :return:
         """
+        l_limit_type = LimitType.ThenLowLimit
+        if ptmd.OPT_FLAG & PtmdOptFlag.NoLowLimit:
+            l_limit_type = LimitType.NoLowLimit
+        elif ptmd.PARM_FLG & PtmdParmFlag.EqualLowLimit:
+            l_limit_type = LimitType.EqualLowLimit
+        h_limit_type = LimitType.ThenHighLimit
+        if ptmd.OPT_FLAG & PtmdOptFlag.NoHighLimit:
+            h_limit_type = LimitType.NoHighLimit
+        elif ptmd.PARM_FLG & PtmdParmFlag.EqualHighLimit:
+            h_limit_type = LimitType.EqualHighLimit
         decimal = UiGlobalVariable.GraphPlotFloatRound
         reject_qty = len(data_df[data_df.TEST_FLG & DtpTestFlag.TestFailed == DtpTestFlag.TestFailed])
         temp_dict = {
@@ -252,8 +267,8 @@ class CapabilityUtils:
             "REJECT_RATE": "{}%".format(round(reject_qty / len(data_df) * 100, 3)),
             "MIN": -0.1,  # 注意, 是取得有效区域的数据
             "MAX": 1.1,  # 注意, 是取得有效区域的数据
-            "LO_LIMIT_TYPE": LimitType.ThenLowLimit,
-            "HI_LIMIT_TYPE": LimitType.EqualHighLimit,
+            "LO_LIMIT_TYPE": l_limit_type,
+            "HI_LIMIT_TYPE": h_limit_type,
             "ALL_DATA_MIN": -0.1,
             "ALL_DATA_MAX": 1.1,
             "TEXT": ptmd.TEXT,
