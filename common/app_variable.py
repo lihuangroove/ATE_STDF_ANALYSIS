@@ -101,7 +101,7 @@ class DataModule:
     prr_df: pd.DataFrame = None
     dtp_df: pd.DataFrame = None  # 数据
     ptmd_df: pd.DataFrame = None  # 测试项目相关
-    bin_df: pd.DataFrame = None
+    bin_df: Union[pd.DataFrame, None] = None
 
 
 class DatatType:
@@ -130,8 +130,9 @@ class PartFlags:
     FIRST = 1
     RETEST = 2
     FINALLY = 3
-    XY_COORD = 4
-    PART_FLAGS = ('ALL', 'FIRST', 'RETEST', 'FINALLY', "XY_COORD")
+    FIRST_XY = 4
+    XY_COORD = 5
+    PART_FLAGS = ('ALL', 'FIRST', 'RETEST', 'FINALLY', "FIRST_XY", "XY_COORD")
 
 
 class GlobalVariable:

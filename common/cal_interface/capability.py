@@ -73,7 +73,8 @@ class CapabilityUtils:
 
     @staticmethod
     # @Time()
-    def re_cal_top_fail(ptmd: PtmdModule, df_module: DataModule, dtp_unit_df: pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
+    def re_cal_top_fail(ptmd: PtmdModule, df_module: DataModule, dtp_unit_df: pd.DataFrame) -> (
+            pd.DataFrame, pd.DataFrame):
         """
         重新计算, 使用ptmd中包含的新的limit信息
         :param ptmd:
@@ -289,7 +290,7 @@ class CapabilityUtils:
         all_qty = len(df_module.prr_df)
         capability_key_list = []
         for row in df_module.ptmd_df.itertuples():  # type:PtmdModule
-            data_df = df_module.dtp_df.loc[row.TEST_ID].loc[:].copy()  # TODO: 10%时间开销
+            data_df = df_module.dtp_df.loc[row.TEST_ID]  # .loc[:].copy()  # TODO: 10%时间开销
             if row.DATAT_TYPE in {DatatType.PTR, DatatType.MPR}:
                 cal_data = CapabilityUtils.calculation_ptr(
                     row, top_fail_dict[row.TEST_ID], data_df, all_qty

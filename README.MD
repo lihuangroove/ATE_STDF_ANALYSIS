@@ -58,3 +58,4 @@
    1. 绘图 -> 主要是JMP和Altair
    2. 多个数据空间的数据Contact(多个数据空间的数据整合在一起) -> *暂未测试*
 6. **更多功能等待完善移植，和BiliBili使用视频更新**
+7. [BiliBili视频地址](https://www.bilibili.com/video/BV1FG4y1T7vX)

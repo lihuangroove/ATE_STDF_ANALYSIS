@@ -40,8 +40,8 @@ class SemiStdfUtils:
             'SITE_CNT': 0,
         }
         for REC in STDF.records_from_file(filepath):
-            if REC.id == "PIR": break
             if REC is None: continue
+            if REC.id == "PIR": break
             if REC.id == "MIR":
                 mir = REC.to_dict()
                 data_dict["LOT_ID"] = mir["LOT_ID"]

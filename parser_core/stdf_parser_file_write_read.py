@@ -120,6 +120,9 @@ class ParserData:
         if part_flag == PartFlags.XY_COORD:
             df1 = df[["DIE_ID", "X_COORD", "Y_COORD"]].groupby(["X_COORD", "Y_COORD"]).last()
             df = df[df.DIE_ID.isin(df1.DIE_ID)]
+        if part_flag == PartFlags.FIRST_XY:
+            df1 = df[["DIE_ID", "X_COORD", "Y_COORD"]].groupby(["X_COORD", "Y_COORD"]).first()
+            df = df[df.DIE_ID.isin(df1.DIE_ID)]
         return df
 
     @staticmethod
@@ -174,7 +177,7 @@ class ParserData:
         ptmd_df = pd.read_hdf(file_path, key="ptmd_df")
         try:
             bin_df = pd.read_hdf(file_path, key="bin_df")
-        except:
+        except ValueError:
             bin_df = None
         if not isinstance(prr_df, Df) or not isinstance(dtp_df, Df) or not isinstance(ptmd_df, Df):
             raise Exception("ERROR@!!!load_hdf5_analysis")
