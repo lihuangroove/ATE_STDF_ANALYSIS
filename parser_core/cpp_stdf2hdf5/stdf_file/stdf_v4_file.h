@@ -163,7 +163,7 @@ public:
 	~STDF_FILE();
 
 	STDF_FILE_ERROR read(const char* filename);
-	STDF_FILE_ERROR parser_to_hdf5(const wchar_t* filename);  // chinese path
+	STDF_FILE_ERROR parser_to_hdf5(const wchar_t* filename, const char* file_path);  // chinese path
 	STDF_FILE_ERROR write(const char* filename, STDF_TYPE type);
 	STDF_FILE_ERROR write(const char* filename);
 	STDF_FILE_ERROR save(const char* filename);

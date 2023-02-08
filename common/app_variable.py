@@ -135,6 +135,11 @@ class PartFlags:
     PART_FLAGS = ('ALL', 'FIRST', 'RETEST', 'FINALLY', "FIRST_XY", "XY_COORD")
 
 
+class ReadFail:
+    Y = 1
+    N = 0
+
+
 class GlobalVariable:
     """
     用来放一些全局变量
@@ -199,6 +204,12 @@ class GlobalVariable:
     REJECT_COLUMN = 14
     LO_LIMIT_TYPE_COLUMN = 18
     HI_LIMIT_TYPE_COLUMN = 19
+
+    PARSER_FILES = ("StdfTempPrr.csv", "StdfTempDtp.csv", "StdfTempPtmd.csv", "BinName.csv")
+    PRR_FILE = "StdfTempPrr.csv"
+    DTP_PATH = "StdfTempDtp.csv"
+    PTMD_PATH = "StdfTempPtmd.csv"
+    BIN_PATH = "BinName.csv"
 
     @staticmethod
     def init():

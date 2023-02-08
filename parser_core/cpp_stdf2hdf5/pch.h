@@ -38,7 +38,7 @@ public:
 	~Cplus_stdf();
 
 	bool Clear();
-	bool ParserStdfToHdf5(const wchar_t*);
+	bool ParserStdfToHdf5(const wchar_t*, const char* cache_path);
 	int GetFinishT(void);
 private:
 	STDF_FILE* stdf_file;

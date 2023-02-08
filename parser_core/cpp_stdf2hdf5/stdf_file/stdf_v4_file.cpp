@@ -414,7 +414,7 @@ void STDF_FILE::data_write(std::ofstream& csv_dtp, std::ofstream& csv_ptmd, std:
 }
 
 
-STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
+STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename, const char* cache_path)
 {
 	/*
 		TODO:
@@ -422,7 +422,7 @@ STDF_FILE_ERROR STDF_FILE::parser_to_hdf5(const wchar_t* filename)
 			1. DIFF ONLY TEST_NO -> 有一种ATE为了省内存,只有第一次生成的数据是完整的,第二次生成的数据可能只有TEST_NO,也有可能有TEST_NO&TEST_TEXT
 			2. 
 	*/
-	std::string temp = std::string(getenv("TEMP"));
+	std::string temp = cache_path;
 
 	std::ofstream csv_prr(temp + "\\StdfTempPrr.csv", std::ios::binary);
 	if (!csv_prr)

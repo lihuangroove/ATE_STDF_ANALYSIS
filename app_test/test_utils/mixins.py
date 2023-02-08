@@ -24,7 +24,7 @@ class CsvDataLoad:
         """
         if self.load:
             return
-        self.df_module = ParserData.load_csv()
+        self.df_module = ParserData.load_csv(TestVar.TEMP_PATH)
         if self.df_module is None:
             raise Exception("ParserData.load_csv fail!")
         self.load = True

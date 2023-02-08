@@ -15,7 +15,7 @@ from PySide2.QtCore import Qt, QThread, Signal, Slot
 
 from typing import List, Set, Union
 
-from common.app_variable import GlobalVariable
+from common.app_variable import GlobalVariable, TestVariable, ReadFail
 from common.li import SummaryCore
 from common.stdf_interface.stdf_parser import SemiStdfUtils
 from parser_core.stdf_parser_file_write_read import ParserData
@@ -67,13 +67,14 @@ class RunStdfAnalysis(QThread):
             save_name = os.path.join(save_path, stdf_name + '.h5')
             if not os.path.exists(save_name):
                 self.eventSignal.emit({"index": index, "status": 0, "message": "开始解析STDF中!"})
-                ParserData.delete_temp_file()
-                boolean = self.stdf.parser_stdf_to_csv(each["FILE_PATH"])
+                ParserData.delete_swap_file(save_path)
+                boolean = self.stdf.parser_stdf_to_csv(each["FILE_PATH"], save_path)
                 if not boolean:
                     self.eventSignal.emit({"index": index, "status": -1, "message": "STDF文件解析失败!"})
                     continue
-                df_module = ParserData.load_csv()
-                ParserData.save_hdf5(df_module, save_name)
+                df_module = ParserData.load_csv(save_path)
+                if ParserData.save_hdf5(df_module, save_name):
+                    ParserData.delete_swap_file(save_path)
             else:
                 self.eventSignal.emit({"index": index, "status": 0, "message": "缓存文件存在,调用缓存数据!"})
 
@@ -86,7 +87,7 @@ class RunStdfAnalysis(QThread):
                 **SemiStdfUtils.get_lot_info_by_semi_ate(each["FILE_PATH"], FILE_NAME=file_name, ID=mdi_id),
                 **ParserData.get_yield(prr, each["PART_FLAG"], each["READ_FAIL"]),
                 "PART_FLAG": each["PART_FLAG"],
-                "READ_FAIL": 1 if each["READ_FAIL"] else 0,
+                "READ_FAIL": ReadFail.Y if each["READ_FAIL"] else ReadFail.N,
                 "HDF5_PATH": save_name,
             }
             """ 阻止不同的程序一起解析 """

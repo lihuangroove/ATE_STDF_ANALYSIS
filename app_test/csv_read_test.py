@@ -38,7 +38,7 @@ class ReadCsvCase(unittest.TestCase, CsvDataLoad):
     def test_parser_stdf_to_csv(self):
         stdf = LinkStdf()
         stdf.init()
-        boolean: bool = stdf.parser_stdf_to_csv(TestVariable.STDF_PATH)
+        boolean: bool = stdf.parser_stdf_to_csv(TestVariable.STDF_PATH, TestVariable.TEMP_PATH)
         self.assertEqual(True, boolean)
         print(stdf.get_finish_t())
         del stdf

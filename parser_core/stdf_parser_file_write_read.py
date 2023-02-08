@@ -28,7 +28,14 @@ class ParserData:
                 os.remove(path)
 
     @staticmethod
-    def load_csv() -> Union[DataModule, None]:
+    def delete_swap_file(path):
+        for each in GlobalVariable.PARSER_FILES:
+            full_path = os.path.join(path, each)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+
+    @staticmethod
+    def load_csv(path) -> Union[DataModule, None]:
         """
         TODO: 需要支援93k就在这边操作, 尽少的在C++中对程序进行修改
               93k主要注意@符号,分割第一个@
@@ -36,14 +43,14 @@ class ParserData:
         :return:
         """
         try:
-            prr_df = pd.read_csv(
-                TestVar.TEMP_PRR_PATH, header=None, names=GloVar.PRR_HEAD, dtype=GloVar.PRR_TYPE_DICT)
-            dtp_df = pd.read_csv(
-                TestVar.TEMP_DTP_PATH, header=None, names=GloVar.DTP_HEAD, dtype=GloVar.DTP_TYPE_DICT)
-            ptmd_df = pd.read_csv(
-                TestVar.TEMP_PTMD_PATH, header=None, names=GloVar.PTMD_HEAD, dtype=GloVar.PTMD_TYPE_DICT)
-            bin_df = pd.read_csv(
-                TestVar.TEMP_BIN_PATH, header=None, names=GloVar.BIN_HEAD, dtype=GloVar.BIN_TYPE_DICT)
+            prr_df = pd.read_csv(os.path.join(path, GlobalVariable.PRR_FILE),
+                                 header=None, names=GloVar.PRR_HEAD, dtype=GloVar.PRR_TYPE_DICT)
+            dtp_df = pd.read_csv(os.path.join(path, GlobalVariable.DTP_PATH),
+                                 header=None, names=GloVar.DTP_HEAD, dtype=GloVar.DTP_TYPE_DICT)
+            ptmd_df = pd.read_csv(os.path.join(path, GlobalVariable.PTMD_PATH),
+                                  header=None, names=GloVar.PTMD_HEAD, dtype=GloVar.PTMD_TYPE_DICT)
+            bin_df = pd.read_csv(os.path.join(path, GlobalVariable.BIN_PATH),
+                                 header=None, names=GloVar.BIN_HEAD, dtype=GloVar.BIN_TYPE_DICT)
             # if 93k?
             new_ptmd_list = []
             # ========================= TODO: only for 93k
@@ -72,7 +79,6 @@ class ParserData:
                 new_ptmd_list.append(each)
             ptmd_df = pd.DataFrame(new_ptmd_list)
             # ==================================================
-            if len(bin_df) == 0: bin_df = None
             df_module = DataModule(prr_df=prr_df, dtp_df=dtp_df, ptmd_df=ptmd_df, bin_df=bin_df)
             return df_module
         except Exception as err:
@@ -84,8 +90,7 @@ class ParserData:
             df_module.prr_df.to_hdf(file_path, "prr_df", mode="w")
             df_module.ptmd_df.to_hdf(file_path, "ptmd_df", mode="r+", format="table")
             df_module.dtp_df.to_hdf(file_path, "dtp_df", mode="r+")
-            if df_module.bin_df is not None:
-                df_module.bin_df.to_hdf(file_path, "bin_df", mode="r+")
+            df_module.bin_df.to_hdf(file_path, "bin_df", mode="r+")
             return True
         except Exception as err:
             print(err)
@@ -175,11 +180,9 @@ class ParserData:
         prr_df = pd.read_hdf(file_path, key="prr_df")
         dtp_df = pd.read_hdf(file_path, key="dtp_df")
         ptmd_df = pd.read_hdf(file_path, key="ptmd_df")
-        try:
-            bin_df = pd.read_hdf(file_path, key="bin_df")
-        except ValueError:
-            bin_df = None
-        if not isinstance(prr_df, Df) or not isinstance(dtp_df, Df) or not isinstance(ptmd_df, Df):
+        bin_df = pd.read_hdf(file_path, key="bin_df")
+        if not isinstance(prr_df, Df) or not isinstance(dtp_df, Df) \
+                or not isinstance(ptmd_df, Df) or not isinstance(bin_df, Df):
             raise Exception("ERROR@!!!load_hdf5_analysis")
         prr_df.insert(0, column="ID", value=unit_id)
         dtp_df.insert(0, column="ID", value=unit_id)

@@ -38,13 +38,13 @@ int Cplus_stdf::GetFinishT(void)
 }
 
 
-bool Cplus_stdf::ParserStdfToHdf5(const wchar_t* filename)
+bool Cplus_stdf::ParserStdfToHdf5(const wchar_t* filename,const char* cache_path)
 {
 
 	Clear();
 	stdf_file = new STDF_FILE();
 
-	int ret = stdf_file->parser_to_hdf5(filename);
+	int ret = stdf_file->parser_to_hdf5(filename, cache_path);
 
 	delete stdf_file;
 	stdf_file = nullptr;

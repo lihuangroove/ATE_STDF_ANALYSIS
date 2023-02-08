@@ -33,7 +33,7 @@ class LinkStdf:
         self._get_finish_t.restype = ctypes.c_int
         "执行STDF CSV数据文件生成. 后续要么改成HDF5要么就用pybin11"
         self._parser_stdf_to_csv = self.std_dll.ParserStdfToHdf5
-        self._parser_stdf_to_csv.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p]
+        self._parser_stdf_to_csv.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_char_p]
         self._parser_stdf_to_csv.restype = ctypes.c_bool
         "清空stdf缓存"
         self._delete_stdf_func = self.std_dll.DeleteStdf
@@ -59,8 +59,8 @@ class LinkStdf:
             self.stdf = None
         del self.std_dll
 
-    def parser_stdf_to_csv(self, stdf_file: str):
-        resp = self._parser_stdf_to_csv(self.stdf, self.string_to_wchar(stdf_file))
+    def parser_stdf_to_csv(self, stdf_file: str, save_path: str):
+        resp = self._parser_stdf_to_csv(self.stdf, self.string_to_wchar(stdf_file), self.string_to_char(save_path))
         self.import_status = True if resp else False
         return resp
 
